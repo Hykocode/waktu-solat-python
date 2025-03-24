@@ -8,7 +8,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHB
                             QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
                             QGridLayout, QSpacerItem, QSizePolicy, QScrollArea)
-from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
+from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup, QPoint
 from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase
 
 class PrayerTimesApp(QMainWindow):
@@ -32,6 +32,7 @@ class PrayerTimesApp(QMainWindow):
         self.data_file_path = "d:/demi-masa-py-1/prayer_times.csv"  # Path to the prayer times CSV file
         self.mosque_name_file = "d:/demi-masa-py-1/mosque_name.txt"  # Path to the mosque name file
         self.background_image_path = ""  # Path to the currently applied background image
+        self.animations = []  # Store animations to prevent garbage collection
         
         # Load configuration
         self.load_config()
@@ -189,6 +190,14 @@ class PrayerTimesApp(QMainWindow):
         
         main_layout.addWidget(header_frame)
         
+        # Add flash message above prayer times
+        self.flash_message_label = QLabel("Welcome to the Mosque Prayer Times Display")
+        self.flash_message_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
+        self.flash_message_label.setStyleSheet("color: white;")
+        self.flash_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.add_scrolling_animation(self.flash_message_label)
+        main_layout.addWidget(self.flash_message_label)
+
         # Main content area (for padding and future widgets)
         self.content_area = QWidget()
         self.content_area.setObjectName("contentArea")  # Assign an object name for styling
@@ -321,6 +330,32 @@ class PrayerTimesApp(QMainWindow):
         self.mosque_input = QLineEdit(self.mosque_name)
         mosque_layout.addWidget(self.mosque_input)
         settings_layout.addLayout(mosque_layout)
+
+        # Add flash message input field
+        flash_message_layout = QHBoxLayout()
+        flash_message_layout.addWidget(QLabel("Flash Message:"))
+        self.flash_message_input = QLineEdit()
+        self.flash_message_input.setPlaceholderText("Enter flash message here...")
+        flash_message_layout.addWidget(self.flash_message_input)
+        settings_layout.addLayout(flash_message_layout)
+
+        # Add button to update the flash message
+        update_flash_button = QPushButton("Update Flash Message")
+        update_flash_button.setStyleSheet("""
+            QPushButton {
+                background-color: #3B82F6;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 10px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #2563EB;
+            }
+        """)
+        update_flash_button.clicked.connect(self.update_flash_message)
+        settings_layout.addWidget(update_flash_button)
 
         # Add background image button
         bg_button = QPushButton("Add Background Image")
@@ -893,8 +928,46 @@ class PrayerTimesApp(QMainWindow):
         except Exception as e:
             print(f"Error saving configuration: {str(e)}")
 
+    def update_flash_message(self):
+        """
+        Update the flash message with the user input.
+        """
+        flash_message = self.flash_message_input.text()
+        if (flash_message):
+            self.flash_message_label.setText(flash_message)
+            self.add_scrolling_animation(self.flash_message_label)
+
+    def add_scrolling_animation(self, label):
+        """
+        Add a scrolling animation to a QLabel using QTimer.
+
+        Parameters:
+        label (QLabel): The label to animate.
+        """
+        # Calculate the width of the label's text
+        label_width = label.fontMetrics().boundingRect(label.text()).width()
+        label.setFixedWidth(label_width)  # Set the label's width to match the text width
+
+        # Initialize the starting position of the label
+        label.move(self.width(), label.y())
+
+        # Create a QTimer to update the label's position
+        def update_position():
+            current_x = label.x()
+            if current_x + label_width < 0:  # Reset position if it goes off-screen
+                label.move(self.width(), label.y())
+            else:
+                label.move(current_x - 2, label.y())  # Move left by 2 pixels
+
+        timer = QTimer(self)
+        timer.timeout.connect(update_position)
+        timer.start(30)  # Update every 30 milliseconds
+
+        # Store the timer to prevent garbage collection
+        self.animations.append(timer)
+
 # Main application
-if __name__ == "__main__":
+if __name__:
     app = QApplication(sys.argv)
     window = PrayerTimesApp()
     window.show()
