@@ -1,3 +1,6 @@
 {
-    "background_image_path": "C:/Users/proto/Downloads/KULIAH MAGHRIB (1080 x 720 px).jpg"
+    "mosque_name": "Masjid Wakaf Bharu",
+    "flash_message": "Sila berniat  iktikaf di dalam masjid supaya  mendapat keberkahan",
+    "background_image_path": "C:/Users/proto/Downloads/Untitled design.jpg",
+    "data_file_path": "d:\\demi-masa-py-1\\prayer_times.csv"
 }

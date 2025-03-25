@@ -2,60 +2,174 @@ import sys
 import csv
 import datetime
 import time
-import os  # Import the os module
-import json  # Import the json module
+import os
+import json
+import logging
+from pathlib import Path
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, 
                             QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
                             QGridLayout, QSpacerItem, QSizePolicy, QScrollArea)
-from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup, QPoint
+from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
 from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase
 
-class PrayerTimesApp(QMainWindow):
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger("PrayerTimesApp")
+
+# Configuration Manager
+class ConfigManager:
     def __init__(self):
+        # Get the base directory for the application
+        self.base_dir = self._get_base_dir()
+        self.config_file = self.base_dir / "config.json"
+        self.default_config = {
+            "mosque_name": "",
+            "flash_message": "Welcome to the Mosque Prayer Times Display",
+            "background_image_path": "",
+            "data_file_path": str(self.base_dir / "prayer_times.csv")
+        }
+        self.config = self.load_config()
+    
+    def _get_base_dir(self):
+        """Get the base directory for the application."""
+        # Use the directory where the script is located
+        base_dir = Path(os.path.dirname(os.path.abspath(__file__)))
+        # Create the directory if it doesn't exist
+        base_dir.mkdir(exist_ok=True)
+        return base_dir
+    
+    def load_config(self):
+        """Load configuration from file or create default if not exists."""
+        if self.config_file.exists():
+            try:
+                with open(self.config_file, 'r', encoding='utf-8') as file:
+                    config = json.load(file)
+                    # Merge with default config to ensure all keys exist
+                    merged_config = self.default_config.copy()
+                    merged_config.update(config)
+                    logger.info("Configuration loaded successfully.")
+                    return merged_config
+            except Exception as e:
+                logger.error(f"Error loading configuration: {str(e)}")
+                return self.default_config
+        else:
+            logger.info("No configuration file found. Using defaults.")
+            self.save_config(self.default_config)
+            return self.default_config
+    
+    def save_config(self, config=None):
+        """Save configuration to file."""
+        if config is not None:
+            self.config = config
+        
+        try:
+            with open(self.config_file, 'w', encoding='utf-8') as file:
+                json.dump(self.config, file, indent=4)
+            logger.info("Configuration saved successfully.")
+        except Exception as e:
+            logger.error(f"Error saving configuration: {str(e)}")
+    
+    def get(self, key, default=None):
+        """Get a configuration value."""
+        return self.config.get(key, default)
+    
+    def set(self, key, value):
+        """Set a configuration value and save."""
+        self.config[key] = value
+        self.save_config()
+
+# Data Manager
+class PrayerTimesDataManager:
+    def __init__(self, config_manager):
+        self.config_manager = config_manager
+        self.prayer_times = []
+        self.load_prayer_times()
+    
+    def load_prayer_times(self):
+        """Load prayer times from CSV file."""
+        data_file_path = self.config_manager.get("data_file_path")
+        if os.path.exists(data_file_path):
+            try:
+                with open(data_file_path, 'r', encoding='utf-8') as file:
+                    csv_reader = csv.DictReader(file)
+                    self.prayer_times = [row for row in csv_reader]
+                logger.info("Prayer times loaded successfully.")
+            except Exception as e:
+                logger.error(f"Error loading prayer times: {str(e)}")
+        else:
+            logger.info("No saved prayer times found.")
+    
+    def save_prayer_times(self, prayer_times=None):
+        """Save prayer times to CSV file."""
+        if prayer_times is not None:
+            self.prayer_times = prayer_times
+        
+        if not self.prayer_times:
+            logger.warning("No prayer times to save.")
+            return False
+        
+        data_file_path = self.config_manager.get("data_file_path")
+        try:
+            with open(data_file_path, 'w', newline='', encoding='utf-8') as file:
+                fieldnames = [
+                    "Tarikh Miladi", "Tarikh Hijri", "Hari",
+                    "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
+                ]
+                writer = csv.DictWriter(file, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(self.prayer_times)
+            
+            logger.info("Prayer times saved successfully.")
+            return True
+        except Exception as e:
+            logger.error(f"Failed to save prayer times: {str(e)}")
+            return False
+    
+    def get_prayer_times_for_date(self, date_str):
+        """Get prayer times for a specific date."""
+        for entry in self.prayer_times:
+            if entry.get("Tarikh Miladi") == date_str:
+                return entry
+        return None
+
+# UI Manager
+class PrayerTimesUI(QMainWindow):
+    def __init__(self, config_manager, data_manager):
         super().__init__()
+        
+        # Store managers
+        self.config_manager = config_manager
+        self.data_manager = data_manager
         
         # Initialize app properties
         self.setWindowTitle("Mosque Prayer Times Display")
         self.setMinimumSize(1024, 768)
         
         # App variables
-        self.prayer_times = []
-        self.mosque_name = ""
-        self.flash_messages = ["", "", ""]
+        self.prayer_names = ["Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"]
+        self.prayer_labels = {}
+        self.prayer_times_labels = {}
         self.current_alert = None
         self.alert_active = False
         self.next_prayer = None
         self.next_prayer_time = None
-        self.marquee_animation = None
-        self.config_file_path = "d:/demi-masa-py-1/config.json"  # Path to the configuration file
-        self.data_file_path = "d:/demi-masa-py-1/prayer_times.csv"  # Path to the prayer times CSV file
-        self.mosque_name_file = "d:/demi-masa-py-1/mosque_name.txt"  # Path to the mosque name file
-        self.background_image_path = ""  # Path to the currently applied background image
-        self.animations = []  # Store animations to prevent garbage collection
-        
-        # Load configuration
-        self.load_config()
-        
-        # Load saved prayer times and mosque name
-        self.load_prayer_times()
-        self.read_mosque_name()
-        
-        # Prayer labels for the main display
-        self.prayer_names = ["Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"]
-        self.prayer_labels = {}
-        self.prayer_times_labels = {}
-        
-        # Alert widgets
-        self.alert_widget = None
-        self.alert_label = None
+        self.scroll_timers = []
         
         # Setup UI components
         self.setup_ui()
         
         # Apply the saved background image if it exists
-        if self.background_image_path:
-            self.set_background_image(self.background_image_path)
+        background_image_path = self.config_manager.get("background_image_path")
+        if background_image_path and os.path.exists(background_image_path):
+            self.set_background_image(background_image_path)
         
         # Timer for updating the clock and checking alerts
         self.timer = QTimer(self)
@@ -64,6 +178,23 @@ class PrayerTimesApp(QMainWindow):
         
         # Show the application in fullscreen mode
         self.showFullScreen()
+    
+    def closeEvent(self, event):
+        """Clean up resources when the application is closed."""
+        # Stop all timers
+        if hasattr(self, 'timer') and self.timer.isActive():
+            self.timer.stop()
+        
+        if hasattr(self, 'marquee_timer') and self.marquee_timer.isActive():
+            self.marquee_timer.stop()
+        
+        # Stop all scroll timers
+        for timer in self.scroll_timers:
+            if timer.isActive():
+                timer.stop()
+        
+        # Accept the close event
+        event.accept()
     
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
@@ -100,7 +231,8 @@ class PrayerTimesApp(QMainWindow):
         mosque_info_layout.setSpacing(8)  # Add spacing between mosque name and Hijri date
         
         # Mosque name
-        self.mosque_label = QLabel(self.mosque_name if self.mosque_name else "Mosque Name")
+        mosque_name = self.config_manager.get("mosque_name", "Mosque Name")
+        self.mosque_label = QLabel(mosque_name)
         self.mosque_label.setObjectName("mosqueLabel")  # Assign an object name for styling
         self.mosque_label.setFont(QFont("Arial", 32, QFont.Weight.Bold))
         self.mosque_label.setStyleSheet("""
@@ -190,13 +322,58 @@ class PrayerTimesApp(QMainWindow):
         
         main_layout.addWidget(header_frame)
         
-        # Add flash message above prayer times
-        self.flash_message_label = QLabel("Welcome to the Mosque Prayer Times Display")
+        # Flash message container with proper styling
+        flash_container = QFrame()
+        flash_container.setObjectName("flashContainer")
+        flash_container.setStyleSheet("""
+            QFrame#flashContainer {
+                background-color: #3B82F6;
+                border-radius: 0px;
+            }
+        """)
+        flash_container.setFixedHeight(50)
+        flash_layout = QHBoxLayout(flash_container)
+        flash_layout.setContentsMargins(10, 5, 10, 5)
+        
+        # Create a scroll area for the flash message
+        scroll_area = QScrollArea()
+        scroll_area.setObjectName("flashScrollArea")
+        scroll_area.setStyleSheet("""
+            QScrollArea#flashScrollArea {
+                background-color: transparent;
+                border: none;
+            }
+        """)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        
+        # Flash message label inside a container widget
+        flash_content = QWidget()
+        flash_content.setStyleSheet("background-color: transparent;")
+        flash_content_layout = QHBoxLayout(flash_content)
+        flash_content_layout.setContentsMargins(0, 0, 0, 0)
+        # Get flash message from config
+        flash_message = self.config_manager.get("flash_message", "Welcome to the Mosque Prayer Times Display")
+        self.flash_message_label = QLabel(flash_message)
+        self.flash_message_label.setObjectName("flashMessageLabel")
         self.flash_message_label.setFont(QFont("Arial", 18, QFont.Weight.Bold))
-        self.flash_message_label.setStyleSheet("color: white;")
-        self.flash_message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.add_scrolling_animation(self.flash_message_label)
-        main_layout.addWidget(self.flash_message_label)
+        self.flash_message_label.setStyleSheet("""
+            QLabel#flashMessageLabel {
+                color: white;
+                background-color: transparent;
+            }
+        """)
+        self.flash_message_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
+        
+        flash_content_layout.addWidget(self.flash_message_label)
+        scroll_area.setWidget(flash_content)
+        flash_layout.addWidget(scroll_area)
+        
+        main_layout.addWidget(flash_container)
+        
+        # Initialize the marquee animation
+        self.setup_marquee_animation()
 
         # Main content area (for padding and future widgets)
         self.content_area = QWidget()
@@ -327,14 +504,14 @@ class PrayerTimesApp(QMainWindow):
         # Mosque name input
         mosque_layout = QHBoxLayout()
         mosque_layout.addWidget(QLabel("Mosque Name:"))
-        self.mosque_input = QLineEdit(self.mosque_name)
+        self.mosque_input = QLineEdit(self.config_manager.get("mosque_name", ""))
         mosque_layout.addWidget(self.mosque_input)
         settings_layout.addLayout(mosque_layout)
 
         # Add flash message input field
         flash_message_layout = QHBoxLayout()
         flash_message_layout.addWidget(QLabel("Flash Message:"))
-        self.flash_message_input = QLineEdit()
+        self.flash_message_input = QLineEdit(self.config_manager.get("flash_message", ""))
         self.flash_message_input.setPlaceholderText("Enter flash message here...")
         flash_message_layout.addWidget(self.flash_message_input)
         settings_layout.addLayout(flash_message_layout)
@@ -403,10 +580,11 @@ class PrayerTimesApp(QMainWindow):
         settings_layout.addWidget(self.preview_table)
 
         # Populate the preview table with current prayer times
-        if self.prayer_times:
-            self.preview_table.setRowCount(len(self.prayer_times))
+        prayer_times = self.data_manager.prayer_times
+        if prayer_times:
+            self.preview_table.setRowCount(len(prayer_times))
             header_labels = [self.preview_table.horizontalHeaderItem(i).text() for i in range(self.preview_table.columnCount())]
-            for row_idx, row in enumerate(self.prayer_times):
+            for row_idx, row in enumerate(prayer_times):
                 for col_idx, col_name in enumerate(header_labels):
                     item = QTableWidgetItem(row.get(col_name, ""))
                     self.preview_table.setItem(row_idx, col_idx, item)
@@ -461,14 +639,14 @@ class PrayerTimesApp(QMainWindow):
             try:
                 with open(file_path, 'r', encoding='utf-8') as file:
                     csv_reader = csv.DictReader(file)
-                    self.prayer_times = []
+                    prayer_times = []
                     
                     # Clear the preview table
                     self.preview_table.setRowCount(0)
                     
                     # Fill preview table with data
                     for row_idx, row in enumerate(csv_reader):
-                        self.prayer_times.append(row)
+                        prayer_times.append(row)
                         
                         # Add to preview table
                         self.preview_table.insertRow(row_idx)
@@ -489,13 +667,17 @@ class PrayerTimesApp(QMainWindow):
                             item = QTableWidgetItem(row[col_name])
                             self.preview_table.setItem(row_idx, col_idx, item)
                 
-                # Save the uploaded prayer times locally
-                self.save_prayer_times()
-                QMessageBox.information(self, "Success", f"Successfully loaded and saved {len(self.prayer_times)} days of prayer times.")
+                # Save the uploaded prayer times
+                if self.data_manager.save_prayer_times(prayer_times):
+                    QMessageBox.information(self, "Success", f"Successfully loaded and saved {len(prayer_times)} days of prayer times.")
+                else:
+                    QMessageBox.warning(self, "Warning", "Failed to save prayer times.")
                 
             except KeyError as e:
+                logger.error(f"CSV format error: {str(e)}")
                 QMessageBox.critical(self, "Error", f"CSV format error: {str(e)}")
             except Exception as e:
+                logger.error(f"Failed to load CSV: {str(e)}")
                 QMessageBox.critical(self, "Error", f"Failed to load CSV: {str(e)}")
     
     def save_settings(self):
@@ -503,18 +685,24 @@ class PrayerTimesApp(QMainWindow):
         Save the current settings, including mosque name and prayer times.
         """
         # Save mosque name
-        self.mosque_name = self.mosque_input.text()
-        self.mosque_label.setText(self.mosque_name)
-        self.create_mosque_name(self.mosque_name)
+        mosque_name = self.mosque_input.text()
+        self.config_manager.set("mosque_name", mosque_name)
+        self.mosque_label.setText(mosque_name)
         
-        # Save prayer times to local storage
-        self.save_prayer_times()
+        # Save flash message if it was changed
+        if hasattr(self, 'flash_message_input') and self.flash_message_input.text():
+            flash_message = self.flash_message_input.text()
+            self.config_manager.set("flash_message", flash_message)
+            self.flash_message_label.setText(flash_message)
+            self.setup_marquee_animation()  # Restart the marquee with new text
         
         # Update display with today's prayer times
         self.update_prayer_display()
         
         # Close the settings dialog
         self.settings_dialog.close()
+        
+        QMessageBox.information(self, "Success", "Settings saved successfully.")
     
     def update_time(self):
         # Get current time
@@ -527,9 +715,10 @@ class PrayerTimesApp(QMainWindow):
             "Thursday": "Khamis", "Friday": "Jumaat", "Saturday": "Sabtu", "Sunday": "Ahad"
         }
         month_translation = {
-            "January": "Januari", "February": "Februari", "March": "Mac", "April": "April",
-            "May": "Mei", "June": "Jun", "July": "Julai", "August": "Ogos",
-            "September": "September", "October": "Oktober", "November": "November", "December": "Disember"
+            "January": "Januari", "February": "Februari", "March": "Mac",
+            "April": "April", "May": "Mei", "June": "Jun", "July": "Julai",
+            "August": "Ogos", "September": "September", "October": "Oktober",
+            "November": "November", "December": "Disember"
         }
         
         english_date = current.strftime("%A, %d %B %Y")
@@ -550,20 +739,16 @@ class PrayerTimesApp(QMainWindow):
         self.check_alerts(current)
     
     def update_prayer_display(self):
-        # Find today's prayer times
-        if not self.prayer_times:
+        # Get prayer times data
+        prayer_times = self.data_manager.prayer_times
+        if not prayer_times:
             return
         
         # Get today's date in the same format as CSV (DD/MM/YYYY)
         today = datetime.datetime.now().strftime("%d/%m/%Y")
         
         # Find today's prayer times
-        today_prayers = None
-        for entry in self.prayer_times:
-            # Check if date matches
-            if entry["Tarikh Miladi"] == today:
-                today_prayers = entry
-                break
+        today_prayers = self.data_manager.get_prayer_times_for_date(today)
         
         # If found, update the display
         if today_prayers:
@@ -592,7 +777,7 @@ class PrayerTimesApp(QMainWindow):
                         if current_time >= prayer_time:
                             current_prayer = prayer
                     except (ValueError, TypeError):
-                        pass
+                        logger.warning(f"Invalid prayer time format for {prayer}: {today_prayers[prayer]}")
             
             # Highlight the current prayer
             if current_prayer:
@@ -601,18 +786,15 @@ class PrayerTimesApp(QMainWindow):
 
     def check_alerts(self, current):
         # If no prayer times loaded, skip
-        if not self.prayer_times:
+        prayer_times = self.data_manager.prayer_times
+        if not prayer_times:
             return
         
         # Get today's date in the same format as CSV (DD/MM/YYYY)
         today = current.strftime("%d/%m/%Y")
         
         # Find today's prayer times
-        today_prayers = None
-        for entry in self.prayer_times:
-            if entry["Tarikh Miladi"] == today:
-                today_prayers = entry
-                break
+        today_prayers = self.data_manager.get_prayer_times_for_date(today)
         
         if not today_prayers:
             return
@@ -660,29 +842,33 @@ class PrayerTimesApp(QMainWindow):
                     elif diff_seconds < -610 and self.current_alert == prayer:
                         self.hide_alert()
                 
-                except (ValueError, AttributeError):
-                    pass
+                except (ValueError, AttributeError) as e:
+                    logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
     
     def show_alert(self, message, alert_type):
         # Update the marquee text with the alert
         self.update_marquee_text(message)
         
         # Set alert styling based on type
-        if alert_type == "reminder":
-            self.alert_widget.setStyleSheet("background-color: #F59E0B;")  # Amber
-        elif alert_type == "azan":
-            self.alert_widget.setStyleSheet("background-color: #10B981;")  # Green
-        elif alert_type == "iqamah":
-            self.alert_widget.setStyleSheet("background-color: #3B82F6;")  # Blue
-            
+        if hasattr(self, 'alert_widget'):
+            if alert_type == "reminder":
+                self.alert_widget.setStyleSheet("background-color: #F59E0B;")  # Amber
+            elif alert_type == "azan":
+                self.alert_widget.setStyleSheet("background-color: #10B981;")  # Green
+            elif alert_type == "iqamah":
+                self.alert_widget.setStyleSheet("background-color: #3B82F6;")  # Blue
+                
         self.alert_active = True
+        logger.info(f"Alert shown: {message} ({alert_type})")
     
     def hide_alert(self):
         # Reset to normal styling
-        self.alert_widget.setStyleSheet("background-color: #4CAF50;")
+        if hasattr(self, 'alert_widget'):
+            self.alert_widget.setStyleSheet("background-color: #4CAF50;")
         
         self.alert_active = False
         self.current_alert = None
+        logger.info("Alert hidden")
 
     def browse_background_image(self):
         """
@@ -694,10 +880,9 @@ class PrayerTimesApp(QMainWindow):
         )
         
         if file_path:
-            self.background_image_path = file_path
             success = self.set_background_image(file_path)
             if success:
-                self.save_config()  # Save the background image path to the configuration file
+                self.config_manager.set("background_image_path", file_path)
                 QMessageBox.information(self, "Success", "Background image applied successfully.")
             else:
                 QMessageBox.critical(self, "Error", "Failed to apply background image.")
@@ -710,6 +895,7 @@ class PrayerTimesApp(QMainWindow):
         image_path (str): Path to the image file
         """
         if not image_path or not os.path.exists(image_path):
+            logger.warning(f"Background image path does not exist: {image_path}")
             return False
 
         try:
@@ -723,16 +909,18 @@ class PrayerTimesApp(QMainWindow):
             }}
             """
             self.content_area.setStyleSheet(style)  # Apply style to contentArea only
+            logger.info(f"Background image set: {image_path}")
             return True
         except Exception as e:
-            print(f"Error setting background image: {str(e)}")
+            logger.error(f"Error setting background image: {str(e)}")
             return False
 
     def save_csv(self):
         """
-        Save the current prayer times to a CSV file in local storage.
+        Save the current prayer times to a CSV file selected by the user.
         """
-        if not self.prayer_times:
+        prayer_times = self.data_manager.prayer_times
+        if not prayer_times:
             QMessageBox.warning(self, "Warning", "No prayer times to save.")
             return
 
@@ -750,225 +938,93 @@ class PrayerTimesApp(QMainWindow):
                     ]
                     writer = csv.DictWriter(file, fieldnames=fieldnames)
                     writer.writeheader()
-                    writer.writerows(self.prayer_times)
+                    writer.writerows(prayer_times)
 
                 QMessageBox.information(self, "Success", "Prayer times saved successfully.")
+                logger.info(f"Prayer times saved to: {file_path}")
             except Exception as e:
+                logger.error(f"Failed to save CSV: {str(e)}")
                 QMessageBox.critical(self, "Error", f"Failed to save CSV: {str(e)}")
-
-    def load_prayer_times(self):
-        """
-        Load prayer times from a local CSV file if it exists.
-        """
-        if os.path.exists(self.data_file_path):
-            try:
-                with open(self.data_file_path, 'r', encoding='utf-8') as file:
-                    csv_reader = csv.DictReader(file)
-                    self.prayer_times = [row for row in csv_reader]
-                print("Prayer times loaded successfully.")
-            except Exception as e:
-                print(f"Error loading prayer times: {str(e)}")
-        else:
-            print("No saved prayer times found.")
-
-    def save_prayer_times(self):
-        """
-        Save the current prayer times to a local CSV file.
-        """
-        if not self.prayer_times:
-            QMessageBox.warning(self, "Warning", "No prayer times to save.")
-            return
-
-        try:
-            with open(self.data_file_path, 'w', newline='', encoding='utf-8') as file:
-                fieldnames = [
-                    "Tarikh Miladi", "Tarikh Hijri", "Hari",
-                    "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
-                ]
-                writer = csv.DictWriter(file, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(self.prayer_times)
-
-            print("Prayer times saved successfully.")
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Failed to save prayer times: {str(e)}")
-
-    def create_mosque_name(self, name):
-        """
-        Create or save the mosque name in a text file.
-        """
-        try:
-            with open(self.mosque_name_file, 'w', encoding='utf-8') as file:
-                file.write(name)
-            self.mosque_name = name
-            print("Mosque name saved successfully.")
-        except Exception as e:
-            print(f"Error saving mosque name: {str(e)}")
-
-    def read_mosque_name(self):
-        """
-        Read the mosque name from the text file if it exists.
-        """
-        if os.path.exists(self.mosque_name_file):
-            try:
-                with open(self.mosque_name_file, 'r', encoding='utf-8') as file:
-                    self.mosque_name = file.read().strip()
-                print("Mosque name loaded successfully.")
-            except Exception as e:
-                print(f"Error reading mosque name: {str(e)}")
-        else:
-            print("No saved mosque name found.")
-
-    def update_mosque_name(self, new_name):
-        """
-        Update the mosque name in the text file.
-        """
-        self.create_mosque_name(new_name)
-
-    def delete_mosque_name(self):
-        """
-        Delete the mosque name file.
-        """
-        if os.path.exists(self.mosque_name_file):
-            try:
-                os.remove(self.mosque_name_file)
-                self.mosque_name = ""
-                print("Mosque name deleted successfully.")
-            except Exception as e:
-                print(f"Error deleting mosque name: {str(e)}")
-        else:
-            print("Mosque name file does not exist.")
-
-    def ensure_background_image_folder(self):
-        """
-        Ensure the background image folder exists.
-        """
-        if not os.path.exists(self.background_image_folder):
-            os.makedirs(self.background_image_folder)
-            print(f"Background image folder created at {self.background_image_folder}")
-
-    def create_background_image(self, file_path):
-        """
-        Save a background image to the folder and set it as the current background.
-        """
-        if not os.path.exists(file_path):
-            QMessageBox.critical(self, "Error", "Selected file does not exist.")
-            return
-        
-        try:
-            # Copy the image to the background image folder
-            file_name = os.path.basename(file_path)
-            destination_path = os.path.join(self.background_image_folder, file_name)
-            if not os.path.exists(destination_path):
-                import shutil
-                shutil.copy(file_path, destination_path)
-            self.background_image_path = destination_path
-            self.set_background_image(self.background_image_path)
-            print(f"Background image saved to {destination_path}")
-        except Exception as e:
-            print(f"Error saving background image: {str(e)}")
-
-    def read_background_image(self):
-        """
-        Read the current background image from the folder if it exists.
-        """
-        if self.background_image_path and os.path.exists(self.background_image_path):
-            self.set_background_image(self.background_image_path)
-            print(f"Background image loaded: {self.background_image_path}")
-        else:
-            print("No background image set.")
-
-    def update_background_image(self, file_path):
-        """
-        Update the current background image by replacing it with a new one.
-        """
-        self.create_background_image(file_path)
-
-    def delete_background_image(self):
-        """
-        Delete the current background image from the folder.
-        """
-        if self.background_image_path and os.path.exists(self.background_image_path):
-            try:
-                os.remove(self.background_image_path)
-                self.background_image_path = ""
-                self.content_area.setStyleSheet("background-color: #0F172A;")  # Reset to default
-                print("Background image deleted successfully.")
-            except Exception as e:
-                print(f"Error deleting background image: {str(e)}")
-        else:
-            print("No background image to delete.")
-
-    def load_config(self):
-        """
-        Load the configuration from the JSON file.
-        """
-        if os.path.exists(self.config_file_path):
-            try:
-                with open(self.config_file_path, 'r', encoding='utf-8') as file:
-                    config = json.load(file)
-                    self.background_image_path = config.get("background_image_path", "")
-                print("Configuration loaded successfully.")
-            except Exception as e:
-                print(f"Error loading configuration: {str(e)}")
-        else:
-            print("No configuration file found.")
-
-    def save_config(self):
-        """
-        Save the current configuration to the JSON file.
-        """
-        try:
-            config = {
-                "background_image_path": self.background_image_path
-            }
-            with open(self.config_file_path, 'w', encoding='utf-8') as file:
-                json.dump(config, file, indent=4)
-            print("Configuration saved successfully.")
-        except Exception as e:
-            print(f"Error saving configuration: {str(e)}")
 
     def update_flash_message(self):
         """
-        Update the flash message with the user input.
+        Update the flash message in the configuration.
         """
         flash_message = self.flash_message_input.text()
-        if (flash_message):
+        if flash_message:
+            self.config_manager.set("flash_message", flash_message)
             self.flash_message_label.setText(flash_message)
-            self.add_scrolling_animation(self.flash_message_label)
+            self.setup_marquee_animation()  # Restart the marquee with new text
+            QMessageBox.information(self, "Success", "Flash message updated successfully.")
+            logger.info(f"Flash message updated: {flash_message}")
 
-    def add_scrolling_animation(self, label):
+    def setup_marquee_animation(self):
         """
-        Add a scrolling animation to a QLabel using QTimer.
-
-        Parameters:
-        label (QLabel): The label to animate.
+        Set up a simple and reliable marquee animation for the flash message label.
         """
-        # Calculate the width of the label's text
-        label_width = label.fontMetrics().boundingRect(label.text()).width()
-        label.setFixedWidth(label_width)  # Set the label's width to match the text width
+        # Stop existing timer if it exists
+        if hasattr(self, 'marquee_timer') and self.marquee_timer.isActive():
+            self.marquee_timer.stop()
+        
+        # Store the original text
+        self.original_flash_text = self.flash_message_label.text()
+        
+        # Add padding to create space between repetitions
+        padded_text = self.original_flash_text + "     "
+        
+        # Create a timer for the animation
+        self.marquee_timer = QTimer(self)
+        self.marquee_timer.timeout.connect(self.update_marquee)
+        
+        # Set the initial text with padding
+        self.flash_message_label.setText(padded_text * 3)  # Repeat the text to ensure continuous scrolling
+        
+        # Start the timer
+        self.marquee_timer.start(100)  # Update every 100ms
+        logger.debug("Marquee animation setup complete")
 
-        # Initialize the starting position of the label
-        label.move(self.width(), label.y())
-
-        # Create a QTimer to update the label's position
-        def update_position():
-            current_x = label.x()
-            if current_x + label_width < 0:  # Reset position if it goes off-screen
-                label.move(self.width(), label.y())
-            else:
-                label.move(current_x - 2, label.y())  # Move left by 2 pixels
-
-        timer = QTimer(self)
-        timer.timeout.connect(update_position)
-        timer.start(30)  # Update every 30 milliseconds
-
-        # Store the timer to prevent garbage collection
-        self.animations.append(timer)
+    def update_marquee(self):
+        """
+        Update the marquee text by shifting it one character to the left.
+        """
+        current_text = self.flash_message_label.text()
+        # Shift the text one character to the left and append the first character to the end
+        new_text = current_text[1:] + current_text[0]
+        self.flash_message_label.setText(new_text)
+    
+    def update_marquee_text(self, message):
+        """
+        Update the marquee text with a new message.
+        """
+        self.original_flash_text = message
+        padded_text = message + "     "
+        self.flash_message_label.setText(padded_text * 3)
+        logger.debug(f"Marquee text updated: {message}")
 
 # Main application
-if __name__:
-    app = QApplication(sys.argv)
-    window = PrayerTimesApp()
-    window.show()
-    sys.exit(app.exec())
+class PrayerTimesApp:
+    def __init__(self):
+        # Initialize configuration manager
+        self.config_manager = ConfigManager()
+        
+        # Initialize data manager
+        self.data_manager = PrayerTimesDataManager(self.config_manager)
+        
+        # Initialize UI
+        self.ui = PrayerTimesUI(self.config_manager, self.data_manager)
+    
+    def run(self):
+        self.ui.show()
+
+if __name__ == "__main__":
+    try:
+        app = QApplication(sys.argv)
+        prayer_times_app = PrayerTimesApp()
+        prayer_times_app.run()
+        sys.exit(app.exec())
+    except Exception as e:
+        logger.critical(f"Unhandled exception: {str(e)}", exc_info=True)
+        # Show error message to user
+        if QApplication.instance():
+            QMessageBox.critical(None, "Critical Error", f"An unexpected error occurred: {str(e)}\n\nPlease check the log file for details.")
+        sys.exit(1)
