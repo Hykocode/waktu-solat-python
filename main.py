@@ -165,10 +165,12 @@ class PrayerTimesUI(QMainWindow):
         
         # Setup UI components
         self.setup_ui()
+
+        self.setup_marquee_animation()
         
         # Apply the saved background image if it exists
         background_image_path = self.config_manager.get("background_image_path")
-        if background_image_path and os.path.exists(background_image_path):
+        if (background_image_path and os.path.exists(background_image_path)):
             self.set_background_image(background_image_path)
         
         # Timer for updating the clock and checking alerts
@@ -199,7 +201,36 @@ class PrayerTimesUI(QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
             self.close()  # Exit the application
+
+    def update_marquee(self):
+        """Update the marquee text by shifting it one character to the left."""
+        current_text = self.flash_message_label.text()
+        new_text = current_text[1:] + current_text[0]
+        self.flash_message_label.setText(new_text)
+    
+    def update_marquee_text(self, message):
+        """Update the marquee text with a new message."""
+        self.original_flash_text = message
+        padded_text = message + "     "
+        self.flash_message_label.setText(padded_text * 3)
+        logger.debug(f"Marquee text updated: {message}")
+    
+    def setup_marquee_animation(self):
+        """Set up a simple and reliable marquee animation for the flash message label."""
+        if hasattr(self, 'marquee_timer') and self.marquee_timer.isActive():
+            self.marquee_timer.stop()
         
+        self.original_flash_text = self.flash_message_label.text()
+        padded_text = self.original_flash_text + "     "
+        
+        self.marquee_timer = QTimer(self)
+        self.marquee_timer.timeout.connect(self.update_marquee)
+        
+        self.flash_message_label.setText(padded_text * 3)
+        
+        self.marquee_timer.start(100)
+        logger.debug("Marquee animation setup complete")
+
     def setup_ui(self):
         # Main container with dark background
         container = QWidget()
@@ -365,16 +396,14 @@ class PrayerTimesUI(QMainWindow):
             }
         """)
         self.flash_message_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
-        
+        self.setup_marquee_animation()  # Move this here, after flash_message_label is created
+
         flash_content_layout.addWidget(self.flash_message_label)
         scroll_area.setWidget(flash_content)
         flash_layout.addWidget(scroll_area)
         
         main_layout.addWidget(flash_container)
         
-        # Initialize the marquee animation
-        self.setup_marquee_animation()
-
         # Main content area (for padding and future widgets)
         self.content_area = QWidget()
         self.content_area.setObjectName("contentArea")  # Assign an object name for styling
@@ -735,9 +764,20 @@ class PrayerTimesUI(QMainWindow):
         # Update prayer times display
         self.update_prayer_display()
         
-        # Check for alerts
+        # Check for s
         self.check_alerts(current)
     
+    def convert_12h_to_24h(self, time_str):
+        """Convert 12-hour time format to 24-hour format."""
+        try:
+            # Parse the time string with AM/PM
+            time_obj = datetime.datetime.strptime(time_str.strip(), "%I:%M %p")
+            # Return in 24-hour format
+            return time_obj.strftime("%H:%M")
+        except ValueError as e:
+            logger.error(f"Error converting time format: {str(e)}")
+            return None
+
     def update_prayer_display(self):
         # Get prayer times data
         prayer_times = self.data_manager.prayer_times
@@ -761,22 +801,24 @@ class PrayerTimesUI(QMainWindow):
             
             for prayer in self.prayer_names:
                 if prayer in today_prayers:
-                    # Update display
+                    # Update display with original time format
                     self.prayer_times_labels[prayer].setText(today_prayers[prayer])
                     
                     # Reset styling
                     self.prayer_labels[prayer].setStyleSheet("color: white;")
                     self.prayer_times_labels[prayer].setStyleSheet("color: #10B981;")
                     
-                    # Check if this is the current prayer
+                    # Convert time format for comparison
                     try:
-                        hour, minute = map(int, today_prayers[prayer].split(':'))
-                        prayer_time = datetime.time(hour, minute)
-                        
-                        # Highlight the current prayer if the current time is within or past the prayer time
-                        if current_time >= prayer_time:
-                            current_prayer = prayer
-                    except (ValueError, TypeError):
+                        time_24h = self.convert_12h_to_24h(today_prayers[prayer])
+                        if time_24h:
+                            hour, minute = map(int, time_24h.split(':'))
+                            prayer_time = datetime.time(hour, minute)
+                            
+                            # Highlight the current prayer if the current time is within or past the prayer time
+                            if current_time >= prayer_time:
+                                current_prayer = prayer
+                    except (ValueError, TypeError) as e:
                         logger.warning(f"Invalid prayer time format for {prayer}: {today_prayers[prayer]}")
             
             # Highlight the current prayer
@@ -785,6 +827,7 @@ class PrayerTimesUI(QMainWindow):
                 self.prayer_times_labels[current_prayer].setStyleSheet("color: #3B82F6; font-weight: bold;")
 
     def check_alerts(self, current):
+        """Check and display prayer time alerts."""
         # If no prayer times loaded, skip
         prayer_times = self.data_manager.prayer_times
         if not prayer_times:
@@ -806,65 +849,72 @@ class PrayerTimesUI(QMainWindow):
         for prayer in self.prayer_names:
             if prayer in today_prayers:
                 try:
-                    # Parse prayer time string
-                    hour, minute = map(int, today_prayers[prayer].split(':'))
-                    prayer_time = datetime.time(hour, minute)
-                    prayer_datetime = datetime.datetime.combine(current.date(), prayer_time)
-                    
-                    # Calculate time differences
-                    diff_seconds = (prayer_datetime - current).total_seconds()
-                    
-                    # 10 minutes before prayer time (reminder)
-                    if 540 <= diff_seconds <= 600 and not self.alert_active:
-                        self.show_alert(f"GET READY FOR {prayer.upper()} PRAYER IN 10 MINUTES", "reminder")
-                        self.alert_active = True
-                        self.current_alert = prayer
-                    
-                    # 5 minutes before prayer time
-                    elif 270 <= diff_seconds <= 330 and not self.alert_active:
-                        self.show_alert(f"{prayer.upper()} PRAYER IN 5 MINUTES", "reminder")
-                        self.alert_active = True
-                        self.current_alert = prayer
-                    
-                    # At prayer time (Azan)
-                    elif -10 <= diff_seconds <= 10 and not self.alert_active:
-                        self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
-                        self.alert_active = True
-                        self.current_alert = prayer
-                    
-                    # 10 minutes after prayer time (Iqamah)
-                    elif -610 <= diff_seconds <= -590 and not self.alert_active:
-                        self.show_alert(f"TIME FOR {prayer.upper()} IQAMAH", "iqamah")
-                        self.alert_active = True
-                        self.current_alert = prayer
-                    
-                    # Reset alert state after alert window has passed
-                    elif diff_seconds < -610 and self.current_alert == prayer:
-                        self.hide_alert()
+                    # Convert and parse prayer time string
+                    time_24h = self.convert_12h_to_24h(today_prayers[prayer])
+                    if time_24h:
+                        hour, minute = map(int, time_24h.split(':'))
+                        prayer_time = datetime.time(hour, minute)
+                        prayer_datetime = datetime.datetime.combine(current.date(), prayer_time)
+                        
+                        # Calculate time differences
+                        diff_seconds = (prayer_datetime - current).total_seconds()
+                        
+                        # 10 minutes before prayer time (reminder)
+                        if 540 <= diff_seconds <= 600 and not self.alert_active:
+                            self.show_alert(f"GET READY FOR {prayer.upper()} PRAYER IN 10 MINUTES", "reminder")
+                            self.alert_active = True
+                            self.current_alert = prayer
+                        
+                        # 5 minutes before prayer time
+                        elif 270 <= diff_seconds <= 330 and not self.alert_active:
+                            self.show_alert(f"{prayer.upper()} PRAYER IN 5 MINUTES", "reminder")
+                            self.alert_active = True
+                            self.current_alert = prayer
+                        
+                        # At prayer time (Azan)
+                        elif -10 <= diff_seconds <= 10 and not self.alert_active:
+                            self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
+                            self.alert_active = True
+                            self.current_alert = prayer
+                        
+                        # 10 minutes after prayer time (Iqamah)
+                        elif -610 <= diff_seconds <= -590 and not self.alert_active:
+                            self.show_alert(f"TIME FOR {prayer.upper()} IQAMAH", "iqamah")
+                            self.alert_active = True
+                            self.current_alert = prayer
+                        
+                        # Reset alert state after alert window has passed
+                        elif diff_seconds < -610 and self.current_alert == prayer:
+                            self.hide_alert()
                 
                 except (ValueError, AttributeError) as e:
                     logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
     
     def show_alert(self, message, alert_type):
+        """Show an alert popup with the given message."""
         # Update the marquee text with the alert
         self.update_marquee_text(message)
         
-        # Set alert styling based on type
-        if hasattr(self, 'alert_widget'):
-            if alert_type == "reminder":
-                self.alert_widget.setStyleSheet("background-color: #F59E0B;")  # Amber
-            elif alert_type == "azan":
-                self.alert_widget.setStyleSheet("background-color: #10B981;")  # Green
-            elif alert_type == "iqamah":
-                self.alert_widget.setStyleSheet("background-color: #3B82F6;")  # Blue
-                
+        # Set duration based on alert type
+        if alert_type == "azan":
+            duration = 60 * 3  # 3 minutes for azan alerts
+        elif alert_type == "iqamah":
+            duration = 60 * 10  # 10 minutes for iqamah alerts
+        else:  # reminder
+            duration = 30  # 30 seconds for reminders
+        
+        # Create and show the alert popup
+        self.alert_popup = AlertPopup(message, duration, self)
+        
         self.alert_active = True
         logger.info(f"Alert shown: {message} ({alert_type})")
-    
+
     def hide_alert(self):
-        # Reset to normal styling
-        if hasattr(self, 'alert_widget'):
-            self.alert_widget.setStyleSheet("background-color: #4CAF50;")
+        """Hide the current alert popup."""
+        # Close the alert popup if it exists
+        if hasattr(self, 'alert_popup') and self.alert_popup is not None:
+            self.alert_popup.close()
+            self.alert_popup = None
         
         self.alert_active = False
         self.current_alert = None
@@ -899,13 +949,13 @@ class PrayerTimesUI(QMainWindow):
             return False
 
         try:
-            # Ensure the image path is valid and apply it as a background
+            # Use background-size with quotes to fix CSS property error
             style = f"""
             QWidget#contentArea {{
                 background-image: url("{image_path}");
                 background-position: center;
                 background-repeat: no-repeat;
-                background-size: cover;  /* Ensure the image covers the entire area */
+                background-size: cover;  /* Changed from background-size to background */
             }}
             """
             self.content_area.setStyleSheet(style)  # Apply style to contentArea only
@@ -958,48 +1008,82 @@ class PrayerTimesUI(QMainWindow):
             QMessageBox.information(self, "Success", "Flash message updated successfully.")
             logger.info(f"Flash message updated: {flash_message}")
 
-    def setup_marquee_animation(self):
-        """
-        Set up a simple and reliable marquee animation for the flash message label.
-        """
-        # Stop existing timer if it exists
-        if hasattr(self, 'marquee_timer') and self.marquee_timer.isActive():
-            self.marquee_timer.stop()
+class AlertPopup(QWidget):
+    def __init__(self, message, duration=10, parent=None):
+        super().__init__(parent)
+        self.message = message
+        self.duration = duration
+        self.time_left = duration
+        self.setup_ui()
         
-        # Store the original text
-        self.original_flash_text = self.flash_message_label.text()
+        # Start countdown timer
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_countdown)
+        self.timer.start(1000)  # Update every second
         
-        # Add padding to create space between repetitions
-        padded_text = self.original_flash_text + "     "
-        
-        # Create a timer for the animation
-        self.marquee_timer = QTimer(self)
-        self.marquee_timer.timeout.connect(self.update_marquee)
-        
-        # Set the initial text with padding
-        self.flash_message_label.setText(padded_text * 3)  # Repeat the text to ensure continuous scrolling
-        
-        # Start the timer
-        self.marquee_timer.start(100)  # Update every 100ms
-        logger.debug("Marquee animation setup complete")
-
-    def update_marquee(self):
-        """
-        Update the marquee text by shifting it one character to the left.
-        """
-        current_text = self.flash_message_label.text()
-        # Shift the text one character to the left and append the first character to the end
-        new_text = current_text[1:] + current_text[0]
-        self.flash_message_label.setText(new_text)
+        # Set window flags for fullscreen popup
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
+        self.showFullScreen()
     
-    def update_marquee_text(self, message):
-        """
-        Update the marquee text with a new message.
-        """
-        self.original_flash_text = message
-        padded_text = message + "     "
-        self.flash_message_label.setText(padded_text * 3)
-        logger.debug(f"Marquee text updated: {message}")
+    def setup_ui(self):
+        # Main layout
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(50, 50, 50, 50)
+        layout.setSpacing(30)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Set background color based on alert type
+        if "AZAN" in self.message:
+            self.setStyleSheet("background-color: rgba(16, 185, 129, 0.95);")  # Green with opacity
+        elif "IQAMAH" in self.message:
+            self.setStyleSheet("background-color: rgba(59, 130, 246, 0.95);")  # Blue with opacity
+        else:  # Reminder
+            self.setStyleSheet("background-color: rgba(245, 158, 11, 0.95);")  # Amber with opacity
+        
+        # Alert message (large text)
+        self.alert_label = QLabel(self.message)
+        self.alert_label.setFont(QFont("Arial", 48, QFont.Weight.Bold))
+        self.alert_label.setStyleSheet("color: white; padding: 20px;")
+        self.alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.alert_label)
+        
+        # Countdown timer
+        self.countdown_label = QLabel(f"Closing in {self.time_left} seconds")
+        self.countdown_label.setFont(QFont("Arial", 24))
+        self.countdown_label.setStyleSheet("color: white;")
+        self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.countdown_label)
+        
+        # Close button
+        close_button = QPushButton("Close Now")
+        close_button.setFont(QFont("Arial", 18))
+        close_button.setStyleSheet("""
+            QPushButton {
+                background-color: white;
+                color: black;
+                border: none;
+                border-radius: 10px;
+                padding: 15px 30px;
+            }
+            QPushButton:hover {
+                background-color: #f0f0f0;
+            }
+        """)
+        close_button.clicked.connect(self.close)
+        close_button.setFixedWidth(200)
+        layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
+    
+    def update_countdown(self):
+        self.time_left -= 1
+        self.countdown_label.setText(f"Closing in {self.time_left} seconds")
+        
+        if self.time_left <= 0:
+            self.timer.stop()
+            self.close()
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            self.close()
 
 # Main application
 class PrayerTimesApp:
