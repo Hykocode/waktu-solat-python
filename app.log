@@ -32132,3 +32132,157 @@ AttributeError: 'PrayerTimesUI' object has no attribute 'set_background_image'
 2025-03-26 12:19:54,165 - PrayerTimesApp - INFO - Configuration loaded successfully.
 2025-03-26 12:19:54,168 - PrayerTimesApp - INFO - Prayer times loaded successfully.
 2025-03-26 12:19:54,288 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 13:09:16,926 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 13:09:16,928 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 13:09:16,990 - PrayerTimesApp - INFO - Alert shown: GET READY FOR ZOHOR PRAYER IN 10 MINUTES (reminder)
+2025-03-26 13:09:16,990 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 13:09:24,495 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 13:09:24,497 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 13:09:24,558 - PrayerTimesApp - INFO - Alert shown: GET READY FOR ZOHOR PRAYER IN 10 MINUTES (reminder)
+2025-03-26 13:09:24,558 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 13:20:53,455 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 13:20:53,455 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 13:20:53,506 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 13:20:58,019 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 13:20:58,036 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 13:20:58,087 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 13:28:50,728 - PrayerTimesApp - INFO - Alert shown: TIME FOR ZOHOR IQAMAH (iqamah)
+2025-03-26 13:29:10,734 - PrayerTimesApp - INFO - Alert hidden
+2025-03-26 15:08:52,995 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 15:08:53,004 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 15:08:53,090 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 15:09:26,704 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 15:09:26,706 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 15:09:26,760 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 15:09:57,741 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 15:09:57,743 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 15:09:57,795 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 15:14:10,641 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-26 15:14:10,643 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-26 15:14:10,697 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-26 15:14:12,327 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:12,333 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:12,333 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:14,329 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:14,333 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:14,334 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:19,819 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:19,822 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:19,823 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:22,736 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:22,740 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:22,740 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:22,967 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:22,971 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:22,972 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:23,152 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:23,156 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:23,157 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:23,348 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:23,352 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:23,352 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:23,512 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:23,517 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:23,518 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:23,693 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:23,697 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:23,697 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:23,850 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:23,854 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:23,855 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,029 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,034 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,034 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,218 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,222 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,223 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,389 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,393 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,393 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,547 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,551 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,551 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,712 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,716 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,717 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:24,879 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:24,882 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:24,882 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:25,125 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:25,129 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:25,130 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:25,379 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:25,383 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:25,384 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:25,561 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:25,565 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:25,566 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:25,791 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:25,794 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:25,794 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:25,989 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:25,992 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:25,993 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:26,247 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:26,251 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:26,252 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:26,452 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:26,456 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:26,457 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:26,690 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:26,693 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:26,694 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:26,911 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:26,915 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:26,916 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:27,081 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:27,085 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:27,086 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:27,291 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:27,295 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:27,296 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:27,456 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:27,461 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:27,461 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:27,671 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:27,675 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:27,676 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-26 15:14:27,859 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-26 15:14:27,863 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-26 15:14:27,864 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-27 10:26:11,335 - PrayerTimesApp - INFO - Configuration loaded successfully.
+2025-03-27 10:26:11,377 - PrayerTimesApp - INFO - Prayer times loaded successfully.
+2025-03-27 10:26:11,577 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 10:26:13,529 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-27 10:26:13,536 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-27 10:26:13,536 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-27 10:26:15,245 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-27 10:26:15,247 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-27 10:26:15,249 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-27 10:26:15,550 - PrayerTimesApp - INFO - Attempting to show alert: TEST ALERT (reminder)
+2025-03-27 10:26:15,551 - PrayerTimesApp - INFO - Alert popup created successfully
+2025-03-27 10:26:15,551 - PrayerTimesApp - INFO - Alert shown: TEST ALERT (reminder)
+2025-03-27 10:46:12,617 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 10:46:12,620 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 10:46:12,719 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 10:46:25,077 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-03-27 10:46:28,708 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 10:46:32,073 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-27 10:46:34,606 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 10:46:36,920 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-03-27 10:46:39,318 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 10:46:44,970 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-27 10:59:29,101 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 10:59:50,433 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 11:06:33,209 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:06:33,214 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:06:33,336 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 11:07:37,909 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:07:37,912 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:07:38,047 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 11:16:49,714 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:16:49,717 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:16:49,794 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 11:17:32,585 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:17:32,591 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:17:32,726 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
