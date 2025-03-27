@@ -32286,3 +32286,62 @@ AttributeError: 'PrayerTimesUI' object has no attribute 'set_background_image'
 2025-03-27 11:17:32,585 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
 2025-03-27 11:17:32,591 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
 2025-03-27 11:17:32,726 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 11:36:39,622 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:36:39,626 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:36:39,767 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 11:38:17,551 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 11:38:17,553 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 11:38:17,605 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 12:56:29,237 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 12:56:29,240 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 12:56:29,337 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 13:19:24,849 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 13:19:24,852 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 13:19:24,970 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 13:20:06,931 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-03-27 13:20:11,686 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 13:20:14,877 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-27 13:20:17,803 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-27 14:13:43,529 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 14:13:43,563 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 14:13:43,617 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 14:34:32,464 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 14:34:32,464 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 14:34:32,515 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 14:35:37,178 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-03-27 14:35:40,598 - PrayerTimesApp - INFO - Flash message updated: Sila berniat  iktikaf di 
+2025-03-27 14:35:49,574 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-03-27 14:35:50,888 - PrayerTimesApp - INFO - Flash message updated: Sila berniat  iktikaf di dalam masjid supaya  mendapat keberkahan 
+2025-03-27 14:56:23,376 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 14:56:23,378 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 14:56:23,435 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 14:56:48,338 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 14:56:48,341 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 14:56:48,395 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 14:59:11,234 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 14:59:11,236 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 14:59:11,290 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:00:48,614 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:00:48,617 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:00:48,669 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:02:10,572 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:02:10,574 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:02:10,626 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:03:06,815 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:03:06,817 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:03:06,868 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:08:17,661 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:08:17,663 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:08:17,717 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:09:00,049 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:09:00,051 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:09:00,106 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:10:02,046 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:10:02,049 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:10:02,101 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:10:41,301 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:10:41,303 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:10:41,358 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:11:13,485 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:11:13,487 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:11:13,538 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg

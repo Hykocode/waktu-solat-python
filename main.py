@@ -29,12 +29,14 @@ class UITheme:
     """Centralized theme constants for consistent UI styling"""
     # Colors
     PRIMARY_COLOR = "#3B82F6"  # Blue
+    HIGHLIGHT_COLOR = "#48a74c"  # Darker blue
     SUCCESS_COLOR = "#10B981"  # Green
     WARNING_COLOR = "#F59E0B"  # Amber
     DANGER_COLOR = "#EF4444"   # Red
     INFO_COLOR = "#60A5FA"     # Light Blue
     
     DARK_BG = "#1E293B"        # Dark background
+    LIGHT_PEACH = "#fff6d2"    # Light peach
     DARKER_BG = "#0F172A"      # Darker background
     LIGHT_BG = "#334155"       # Light background
     
@@ -44,13 +46,13 @@ class UITheme:
     
     # Prayer card colors
     PRAYER_COLORS = {
-        "Imsak": "#FF5733",    # Red
-        "Subuh": "#33FF57",    # Green
-        "Syuruk": "#3357FF",   # Blue
-        "Zohor": "#FF33A1",    # Pink
-        "Asar": "#FFC300",     # Yellow
-        "Maghrib": "#8E44AD",  # Purple
-        "Isyak": "#1ABC9C"     # Teal
+        "Imsak": "#000a8d",   
+        "Subuh": "#1355b8",  
+        "Syuruk": "#ad1500",  
+        "Zohor": "#e4a400",   
+        "Asar": "#e43000",    
+        "Maghrib": "#a400ad",
+        "Isyak": "#3d0255"    
     }
     
     # Alert colors with opacity
@@ -864,7 +866,7 @@ class UIBuilder:
         prayer_cards_container.setObjectName("prayerCardsContainer")
         prayer_cards_container.setStyleSheet(f"""
             QWidget#prayerCardsContainer {{
-                background-color: {UITheme.DARK_BG};
+                background-color: {UITheme.LIGHT_PEACH};
             }}
         """)
         prayer_cards_container.setMinimumHeight(200)
@@ -1295,8 +1297,9 @@ class PrayerTimesUI(QMainWindow):
             
             # Highlight the current prayer
             if current_prayer:
-                self.prayer_labels[current_prayer].setStyleSheet(f"color: {UITheme.PRIMARY_COLOR}; font-weight: bold;")
-                self.prayer_times_labels[current_prayer].setStyleSheet(f"color: {UITheme.PRIMARY_COLOR}; font-weight: bold;")
+                self.prayer_labels[current_prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; font-weight: bold;")
+                self.prayer_times_labels[current_prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; font-weight: bold;")
+                self.prayer_times_labels[current_prayer].setStyleSheet(f"background-color: {UITheme.HIGHLIGHT_COLOR}; color: {UITheme.TEXT_PRIMARY};")
     
     def update_flash_message(self, message):
         """Update the flash message in the configuration and display."""
