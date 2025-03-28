@@ -453,83 +453,105 @@ class TimeUtils:
             rest = rest.replace(eng_month, malay_month)
         return f"{day_malay}, {rest}"
 
-# Alert Popup
-class AlertPopup(QWidget):
-    def __init__(self, message, duration=10, parent=None):
-        super().__init__(parent)
-        self.message = message
-        self.duration = duration
-        self.time_left = duration
-        self.setup_ui()
-        
-        # Start countdown timer
-        self.timer = QTimer(self)
+
+# Integrated Alert
+class IntegratedAlert:
+    def __init__(self, parent_ui):
+        self.parent = parent_ui
+        self.alert_frame = None
+        self.timer = QTimer()
         self.timer.timeout.connect(self.update_countdown)
-        self.timer.start(1000)  # Update every second
-        
-        # Set window flags for fullscreen popup
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
-        self.showFullScreen()
+        self.remaining_time = 0
+        self.countdown_label = None
     
-    def setup_ui(self):
-        # Main layout
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(50, 50, 50, 50)
-        layout.setSpacing(30)
-        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    def show_alert(self, message, duration=10, alert_type="reminder"):
+        # Remove existing alert if any
+        self.hide_alert()
+        
+        # Create alert frame
+        self.alert_frame = QFrame(self.parent)
+        self.alert_frame.setObjectName("alertFrame")
         
         # Set background color based on alert type
-        if "AZAN" in self.message:
-            self.setStyleSheet(f"background-color: {UITheme.ALERT_AZAN};")
-        elif "IQAMAH" in self.message:
-            self.setStyleSheet(f"background-color: {UITheme.ALERT_IQAMAH};")
+        if "AZAN" in message:
+            bg_color = UITheme.ALERT_AZAN
+        elif "IQAMAH" in message:
+            bg_color = UITheme.ALERT_IQAMAH
         else:  # Reminder
-            self.setStyleSheet(f"background-color: {UITheme.ALERT_REMINDER};")
+            bg_color = UITheme.ALERT_REMINDER
+            
+        self.alert_frame.setStyleSheet(f"""
+            QFrame#alertFrame {{
+                background-color: {bg_color};
+                border: 2px solid white;
+                border-radius: 15px;
+            }}
+        """)
         
-        # Alert message (large text)
-        self.alert_label = QLabel(self.message)
-        self.alert_label.setFont(QFont("Arial", 48, QFont.Weight.Bold))
-        self.alert_label.setStyleSheet("color: white; padding: 20px;")
-        self.alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.alert_label)
+        # Layout
+        layout = QVBoxLayout(self.alert_frame)
+        layout.setContentsMargins(20, 20, 20, 20)
         
-        # Countdown timer
-        self.countdown_label = QLabel(f"Closing in {self.time_left} seconds")
-        self.countdown_label.setFont(QFont("Arial", 24))
+        # Alert message
+        alert_label = QLabel(message)
+        alert_label.setFont(QFont("Arial", 36, QFont.Weight.Bold))
+        alert_label.setStyleSheet("color: white;")
+        alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(alert_label)
+        
+        # Countdown label
+        self.countdown_label = QLabel(f"Closing in {duration} seconds")
+        self.countdown_label.setFont(QFont("Arial", 18))
         self.countdown_label.setStyleSheet("color: white;")
         self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.countdown_label)
         
         # Close button
-        close_button = QPushButton("Close Now")
-        close_button.setFont(QFont("Arial", 18))
+        close_button = QPushButton("Dismiss")
+        close_button.setFont(QFont("Arial", 16))
         close_button.setStyleSheet("""
             QPushButton {
                 background-color: white;
                 color: black;
                 border: none;
                 border-radius: 10px;
-                padding: 15px 30px;
+                padding: 10px 20px;
             }
             QPushButton:hover {
                 background-color: #f0f0f0;
             }
         """)
-        close_button.clicked.connect(self.close)
-        close_button.setFixedWidth(200)
+        close_button.setFixedWidth(150)
+        close_button.clicked.connect(self.hide_alert)
         layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        # Position the alert in the center of the parent
+        self.alert_frame.setFixedSize(600, 300)
+        self.alert_frame.move(
+            (self.parent.width() - self.alert_frame.width()) // 2,
+            (self.parent.height() - self.alert_frame.height()) // 2
+        )
+        
+        # Show the alert
+        self.alert_frame.show()
+        
+        # Start countdown
+        self.remaining_time = duration
+        self.timer.start(1000)  # Update every second
     
     def update_countdown(self):
-        self.time_left -= 1
-        self.countdown_label.setText(f"Closing in {self.time_left} seconds")
+        self.remaining_time -= 1
+        if self.countdown_label:
+            self.countdown_label.setText(f"Closing in {self.remaining_time} seconds")
         
-        if self.time_left <= 0:
-            self.timer.stop()
-            self.close()
+        if self.remaining_time <= 0:
+            self.hide_alert()
     
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key.Key_Escape:
-            self.close()
+    def hide_alert(self):
+        if self.alert_frame:
+            self.timer.stop()
+            self.alert_frame.deleteLater()
+            self.alert_frame = None
 
 # Alert Manager
 class AlertManager:
@@ -540,7 +562,7 @@ class AlertManager:
         self.data_manager = data_manager
         self.current_alert = None
         self.alert_active = False
-        self.alert_popup = None
+        self.integrated_alert = IntegratedAlert(parent_widget)
     
     def check_alerts(self, current_datetime):
         """Check and display prayer time alerts."""
@@ -610,7 +632,7 @@ class AlertManager:
                     logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
     
     def show_alert(self, message, alert_type):
-        """Show an alert popup with the given message."""
+        """Show an alert with the given message."""
         # Update the marquee text if callback is provided
         if hasattr(self.parent, 'update_marquee_text'):
             self.parent.update_marquee_text(message)
@@ -623,19 +645,15 @@ class AlertManager:
         else:  # reminder
             duration = 30  # 30 seconds for reminders
         
-        # Create and show the alert popup
-        self.alert_popup = AlertPopup(message, duration, self.parent)
+        # Show the integrated alert
+        self.integrated_alert.show_alert(message, duration, alert_type)
         
         self.alert_active = True
         logger.info(f"Alert shown: {message} ({alert_type})")
     
     def hide_alert(self):
-        """Hide the current alert popup."""
-        # Close the alert popup if it exists
-        if self.alert_popup is not None:
-            self.alert_popup.close()
-            self.alert_popup = None
-        
+        """Hide the current alert."""
+        self.integrated_alert.hide_alert()
         self.alert_active = False
         self.current_alert = None
         logger.info("Alert hidden")
@@ -866,7 +884,7 @@ class UIBuilder:
         prayer_cards_container.setObjectName("prayerCardsContainer")
         prayer_cards_container.setStyleSheet(f"""
             QWidget#prayerCardsContainer {{
-                background-color: {UITheme.LIGHT_PEACH};
+                background-image: url("images/background.png");
             }}
         """)
         prayer_cards_container.setMinimumHeight(200)
@@ -1043,6 +1061,14 @@ class PrayerTimesUI(QMainWindow):
         
         # Initialize app properties
         self.setWindowTitle("Mosque Prayer Times Display")
+        
+        # Set window icon - direct file approach
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "app_icon.svg")
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
+        else:
+            logger.warning(f"Icon file not found at {icon_path}")
+        
         self.setMinimumSize(1024, 768)
         
         # App variables
@@ -1395,6 +1421,12 @@ class PrayerTimesApp:
 if __name__ == "__main__":
     try:
         app = QApplication(sys.argv)
+        
+        # Set application icon
+        icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "app_icon.svg")
+        if os.path.exists(icon_path):
+            app.setWindowIcon(QIcon(icon_path))
+        
         prayer_times_app = PrayerTimesApp()
         prayer_times_app.run()
         sys.exit(app.exec())
@@ -1404,3 +1436,4 @@ if __name__ == "__main__":
         if QApplication.instance():
             QMessageBox.critical(None, "Critical Error", f"An unexpected error occurred: {str(e)}\n\nPlease check the log file for details.")
         sys.exit(1)
+

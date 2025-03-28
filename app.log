@@ -32345,3 +32345,59 @@ AttributeError: 'PrayerTimesUI' object has no attribute 'set_background_image'
 2025-03-27 15:11:13,485 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
 2025-03-27 15:11:13,487 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
 2025-03-27 15:11:13,538 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-27 15:15:43,152 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-27 15:15:43,154 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-27 15:15:43,208 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-28 22:20:30,324 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-28 22:20:30,440 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-28 22:20:30,850 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-28 22:28:25,583 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-28 22:28:27,236 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-28 22:29:27,444 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-28 22:29:27,445 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-28 22:29:27,570 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-28 22:30:38,355 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-28 22:30:38,360 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-28 22:30:38,556 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-28 22:32:45,015 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-28 22:32:45,016 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-28 22:32:45,122 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 03:52:51,207 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 03:52:51,226 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 03:52:51,465 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:10:44,044 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:10:44,049 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:10:44,256 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:10:50,056 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-29 04:10:58,991 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-03-29 04:11:00,440 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:17,263 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:23,236 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:23,415 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:29,321 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:29,832 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,017 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,231 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,412 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,551 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,732 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:30,914 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-29 04:11:53,961 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:11:53,963 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:11:54,119 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:14:19,568 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:14:19,579 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:14:19,837 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:21:25,279 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:21:25,282 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:21:25,378 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:24:35,114 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:24:35,115 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:24:35,201 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:39:41,828 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:39:41,833 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:39:41,839 - PrayerTimesApp - WARNING - Icon file not found at d:\demi-masa-py-1\icons\app_icon.svg
+2025-03-29 04:39:41,994 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:40:50,614 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:40:50,619 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:40:50,775 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
