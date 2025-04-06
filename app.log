@@ -32401,3 +32401,51 @@ AttributeError: 'PrayerTimesUI' object has no attribute 'set_background_image'
 2025-03-29 04:40:50,614 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
 2025-03-29 04:40:50,619 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
 2025-03-29 04:40:50,775 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 04:44:34,424 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 04:44:34,433 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 04:44:34,700 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 13:14:44,354 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-29 13:14:44,369 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-29 13:14:44,570 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-29 13:17:50,830 - PrayerTimesApp - INFO - Alert shown: ZOHOR AZAN IS NOW (azan)
+2025-03-29 13:28:10,895 - PrayerTimesApp - INFO - Alert hidden
+2025-03-30 01:48:59,418 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-30 01:48:59,439 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-30 01:48:59,684 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-30 22:40:25,205 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-30 22:40:25,228 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-30 22:40:25,496 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-30 22:43:48,903 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-03-30 22:43:48,905 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-03-30 22:43:49,002 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-03-30 22:46:52,678 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-30 22:46:54,118 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-30 22:46:55,141 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-30 22:46:56,161 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-03-30 22:46:56,926 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-03-30 22:46:57,521 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:05:26,011 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 12:05:26,117 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 12:05:26,419 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 12:05:42,060 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:05:43,036 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:05:44,355 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-06 12:05:46,623 - PrayerTimesApp - INFO - Flash message updated: Sila berniat  iktikaf di dalam masjid supaya  mendapat keberkahan 
+2025-04-06 12:05:52,030 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-06 12:05:54,282 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:05:55,748 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:12:31,422 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 12:12:31,424 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 12:12:31,516 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 12:12:38,071 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:12:45,584 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:12:47,053 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-06 12:12:48,590 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:12:49,615 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:12:50,584 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-06 12:29:02,913 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 12:29:02,915 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 12:29:02,991 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 12:29:05,987 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-06 12:29:16,184 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:29:16,934 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)

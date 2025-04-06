@@ -490,18 +490,20 @@ class IntegratedAlert:
         
         # Layout
         layout = QVBoxLayout(self.alert_frame)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setContentsMargins(40, 40, 40, 40)
         
+        layout.addStretch(1)
+
         # Alert message
         alert_label = QLabel(message)
-        alert_label.setFont(QFont("Arial", 36, QFont.Weight.Bold))
+        alert_label.setFont(QFont("Arial", 48, QFont.Weight.Bold))
         alert_label.setStyleSheet("color: white;")
         alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(alert_label)
         
         # Countdown label
         self.countdown_label = QLabel(f"Closing in {duration} seconds")
-        self.countdown_label.setFont(QFont("Arial", 18))
+        self.countdown_label.setFont(QFont("Arial", 24))
         self.countdown_label.setStyleSheet("color: white;")
         self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(self.countdown_label)
@@ -521,16 +523,14 @@ class IntegratedAlert:
                 background-color: #f0f0f0;
             }
         """)
-        close_button.setFixedWidth(150)
+        close_button.setFixedWidth(200)
         close_button.clicked.connect(self.hide_alert)
         layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
         
+        layout.addStretch(1)
+
         # Position the alert in the center of the parent
-        self.alert_frame.setFixedSize(600, 300)
-        self.alert_frame.move(
-            (self.parent.width() - self.alert_frame.width()) // 2,
-            (self.parent.height() - self.alert_frame.height()) // 2
-        )
+        self.alert_frame.setGeometry(0, 0, self.parent.width(), self.parent.height())
         
         # Show the alert
         self.alert_frame.show()
