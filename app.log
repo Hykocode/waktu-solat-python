@@ -32449,3 +32449,61 @@ AttributeError: 'PrayerTimesUI' object has no attribute 'set_background_image'
 2025-04-06 12:29:05,987 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
 2025-04-06 12:29:16,184 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
 2025-04-06 12:29:16,934 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:47:25,281 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 12:47:25,281 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 12:47:25,365 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 12:47:29,913 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-06 12:47:31,146 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-06 12:47:32,030 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-06 13:20:29,599 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 13:20:29,601 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 13:20:29,677 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 13:25:50,477 - PrayerTimesApp - INFO - Alert shown: TIME FOR ZOHOR IQAMAH (iqamah)
+2025-04-06 13:26:10,527 - PrayerTimesApp - INFO - Alert hidden
+2025-04-06 15:23:39,368 - PrayerTimesApp - CRITICAL - Unhandled exception: QFontDatabase(a0: QFontDatabase): not enough arguments
+Traceback (most recent call last):
+  File "d:\demi-masa-py-1\main.py", line 1455, in <module>
+    font_db = QFontDatabase()
+              ^^^^^^^^^^^^^^^
+TypeError: QFontDatabase(a0: QFontDatabase): not enough arguments
+2025-04-06 15:24:33,374 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 15:24:33,393 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 15:24:33,528 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 15:26:30,462 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 15:26:30,462 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 15:26:30,546 - PrayerTimesApp - CRITICAL - Unhandled exception: 'Imsak'
+Traceback (most recent call last):
+  File "d:\demi-masa-py-1\main.py", line 1466, in <module>
+    prayer_times_app = PrayerTimesApp()
+                       ^^^^^^^^^^^^^^^^
+  File "d:\demi-masa-py-1\main.py", line 1440, in __init__
+    self.ui = PrayerTimesUI(self.config_manager, self.data_manager)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "d:\demi-masa-py-1\main.py", line 1109, in __init__
+    self.setup_ui()
+  File "d:\demi-masa-py-1\main.py", line 1187, in setup_ui
+    self.update_time()
+  File "d:\demi-masa-py-1\main.py", line 1299, in update_time
+    self.update_prayer_display()
+  File "d:\demi-masa-py-1\main.py", line 1332, in update_prayer_display
+    self.prayer_labels[prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY};")
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^
+KeyError: 'Imsak'
+2025-04-06 15:27:01,927 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 15:27:01,942 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 15:27:02,033 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-06 15:31:43,080 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-06 15:31:43,097 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-06 15:31:43,180 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-07 09:57:42,484 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-07 09:57:42,532 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-07 09:57:42,885 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-07 14:16:30,936 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-07 14:16:31,051 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-07 14:16:31,062 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-07 14:16:31,074 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-07 14:16:31,215 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-07 14:17:24,355 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-07 14:17:33,903 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-07 14:17:36,366 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-07 14:17:37,310 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)

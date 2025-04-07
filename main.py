@@ -44,6 +44,17 @@ class UITheme:
     TEXT_SECONDARY = "#94A3B8" # Gray text
     TEXT_ACCENT = "#FFFFFF"    # white
     
+    # Prayer names in Arabic
+    PRAYER_NAMES_ARABIC = {
+        "Imsak": "الإمساك",
+        "Subuh": "الفجر",
+        "Syuruk": "الشروق",
+        "Zohor": "الظهر",
+        "Asar": "العصر",
+        "Maghrib": "المغرب",
+        "Isyak": "العشاء"
+    }
+
     # Prayer card colors
     PRAYER_COLORS = {
         "Imsak": "#000a8d",   
@@ -154,6 +165,56 @@ class UITheme:
                 border: none;
             }}
         """
+# Add this class after the UITheme class
+class FontManager:
+    """Manages custom fonts for the application"""
+    
+    MAIN_FONT_ID = None
+    ARABIC_FONT_ID = None
+    
+    @staticmethod
+    def load_fonts():
+        """Load custom fonts for the application"""
+        font_dir = Path(os.path.dirname(os.path.abspath(__file__))) / "fonts"
+        font_dir.mkdir(exist_ok=True)
+        
+        # Load main font
+        main_font_path = font_dir / "Outfit-Variable.ttf"  # Change filename to match your font
+        if main_font_path.exists():
+            FontManager.MAIN_FONT_ID = QFontDatabase.addApplicationFont(str(main_font_path))
+            if FontManager.MAIN_FONT_ID != -1:
+                logger.info(f"Main font loaded successfully: {QFontDatabase.applicationFontFamilies(FontManager.MAIN_FONT_ID)[0]}")
+            else:
+                logger.warning("Failed to load main font")
+        else:
+            logger.warning(f"Main font file not found at {main_font_path}")
+        
+        # Load Arabic font
+        arabic_font_path = font_dir / "CooperArabic.ttf"  # Change filename to match your font
+        if arabic_font_path.exists():
+            FontManager.ARABIC_FONT_ID = QFontDatabase.addApplicationFont(str(arabic_font_path))
+            if FontManager.ARABIC_FONT_ID != -1:
+                logger.info(f"Arabic font loaded successfully: {QFontDatabase.applicationFontFamilies(FontManager.ARABIC_FONT_ID)[0]}")
+            else:
+                logger.warning("Failed to load Arabic font")
+        else:
+            logger.warning(f"Arabic font file not found at {arabic_font_path}")
+    
+    @staticmethod
+    def get_main_font(size=12, weight=QFont.Weight.Normal):
+        """Get the main font with specified size and weight"""
+        if FontManager.MAIN_FONT_ID != -1 and FontManager.MAIN_FONT_ID is not None:
+            family = QFontDatabase.applicationFontFamilies(FontManager.MAIN_FONT_ID)[0]
+            return QFont(family, size, weight)
+        return QFont("Arial", size, weight)  # Fallback font
+    
+    @staticmethod
+    def get_arabic_font(size=12, weight=QFont.Weight.Normal):
+        """Get the Arabic font with specified size and weight"""
+        if FontManager.ARABIC_FONT_ID != -1 and FontManager.ARABIC_FONT_ID is not None:
+            family = QFontDatabase.applicationFontFamilies(FontManager.ARABIC_FONT_ID)[0]
+            return QFont(family, size, weight)
+        return QFont("Arial", size, weight)  # Fallback font
 
 # Configuration Validator
 class ConfigValidator:
@@ -633,6 +694,10 @@ class AlertManager:
     
     def show_alert(self, message, alert_type):
         """Show an alert with the given message."""
+         # Replace prayer names with Arabic versions in the message
+        for prayer_name, arabic_name in UITheme.PRAYER_NAMES_ARABIC.items():
+            if prayer_name in message:
+                message = message.replace(prayer_name, arabic_name)
         # Update the marquee text if callback is provided
         if hasattr(self.parent, 'update_marquee_text'):
             self.parent.update_marquee_text(message)
@@ -738,7 +803,7 @@ class UIBuilder:
         # Mosque name
         mosque_label = QLabel(mosque_name)
         mosque_label.setObjectName("mosqueLabel")
-        mosque_label.setFont(QFont("Arial", UITheme.FONT_LARGE, QFont.Weight.Bold))
+        mosque_label.setFont(FontManager.get_main_font(UITheme.FONT_LARGE, QFont.Weight.Bold))
         mosque_label.setStyleSheet(f"""
             QLabel#mosqueLabel {{  
                 color: {UITheme.TEXT_PRIMARY};
@@ -752,7 +817,7 @@ class UIBuilder:
         # Hijri date below mosque name
         hijri_label = QLabel("")
         hijri_label.setObjectName("hijriLabel")
-        hijri_label.setFont(QFont("Arial", UITheme.FONT_SMALL))
+        hijri_label.setFont(FontManager.get_main_font(UITheme.FONT_SMALL))
         hijri_label.setStyleSheet(f"""
             QLabel#hijriLabel {{
                 color: {UITheme.TEXT_SECONDARY};
@@ -793,7 +858,7 @@ class UIBuilder:
         # Current time on top
         time_label = QLabel("")
         time_label.setObjectName("timeLabel")
-        time_label.setFont(QFont("Arial", 50, QFont.Weight.Bold))
+        time_label.setFont(FontManager.get_main_font(50, QFont.Weight.Bold))
         time_label.setStyleSheet(f"""
             QLabel#timeLabel {{
                 color: {UITheme.TEXT_PRIMARY};
@@ -805,7 +870,7 @@ class UIBuilder:
         # Malay date below time
         date_label = QLabel("")
         date_label.setObjectName("dateLabel")
-        date_label.setFont(QFont("Arial", UITheme.FONT_SMALL))
+        date_label.setFont(FontManager.get_main_font(UITheme.FONT_SMALL))
         date_label.setStyleSheet(f"""
             QLabel#dateLabel {{
                 color: {UITheme.TEXT_PRIMARY};
@@ -862,7 +927,7 @@ class UIBuilder:
         
         flash_message_label = QLabel(flash_message)
         flash_message_label.setObjectName("flashMessageLabel")
-        flash_message_label.setFont(QFont("Arial", UITheme.FONT_SMALL, QFont.Weight.Bold))
+        flash_message_label.setFont(FontManager.get_main_font(UITheme.FONT_SMALL, QFont.Weight.Bold))
         flash_message_label.setStyleSheet(f"""
             QLabel#flashMessageLabel {{
                 color: {UITheme.TEXT_PRIMARY};
@@ -909,10 +974,11 @@ class UIBuilder:
             """)
             card_layout = QVBoxLayout(card)
             
-            # Prayer name
-            name_label = QLabel(prayer)
+             # Only Arabic prayer name (no Malay name)
+            arabic_name = UITheme.PRAYER_NAMES_ARABIC.get(prayer, prayer)
+            name_label = QLabel(arabic_name)
             name_label.setObjectName(f"{prayer}NameLabel")
-            name_label.setFont(QFont("Arial", UITheme.FONT_MEDIUM, QFont.Weight.Bold))
+            name_label.setFont(FontManager.get_arabic_font(UITheme.FONT_MEDIUM, QFont.Weight.Bold))
             name_label.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY};")
             name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             card_layout.addWidget(name_label)
@@ -921,7 +987,7 @@ class UIBuilder:
             # Prayer time
             time_label = QLabel("--:--")
             time_label.setObjectName(f"{prayer}TimeLabel")
-            time_label.setFont(QFont("Arial", 22, QFont.Weight.Bold))
+            time_label.setFont(FontManager.get_main_font(22, QFont.Weight.Bold))
             time_label.setStyleSheet(f"color: {UITheme.TEXT_ACCENT};")
             time_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             card_layout.addWidget(time_label)
@@ -1406,6 +1472,10 @@ class PrayerTimesUI(QMainWindow):
 # Main application
 class PrayerTimesApp:
     def __init__(self):
+
+        # Load custom fonts
+        FontManager.load_fonts()
+
         # Initialize configuration manager
         self.config_manager = ConfigManager()
         
@@ -1427,6 +1497,18 @@ if __name__ == "__main__":
         if os.path.exists(icon_path):
             app.setWindowIcon(QIcon(icon_path))
         
+        # # Set up Arabic font support
+        # font_db = QFontDatabase()
+        # # Try to find a suitable font for Arabic text
+        # arabic_fonts = ["Arial", "Tahoma", "Segoe UI", "Noto Sans Arabic", "Amiri"]
+        # default_font = QFont()
+        # for font_name in arabic_fonts:
+        #     if font_name in font_db.families():
+        #         default_font = QFont(font_name)
+        #         logger.info(f"Using {font_name} for Arabic text support")
+        #         break
+        # app.setFont(default_font)
+
         prayer_times_app = PrayerTimesApp()
         prayer_times_app.run()
         sys.exit(app.exec())
