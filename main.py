@@ -10,8 +10,9 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHB
                             QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
                             QGridLayout, QSpacerItem, QSizePolicy, QScrollArea)
-from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup
+from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup,QUrl
 from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase
+from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 # Set up logging
 logging.basicConfig(
@@ -165,6 +166,79 @@ class UITheme:
                 border: none;
             }}
         """
+    
+# Audio Manager
+class AudioManager:
+    """Manages audio playback for alerts and notifications"""
+    
+    def __init__(self):
+        self.player = QMediaPlayer()
+        self.audio_output = QAudioOutput()
+        self.player.setAudioOutput(self.audio_output)
+        
+        # Set default volume
+        self.audio_output.setVolume(0.7)
+        
+        # Base directory for sound files
+        self.sounds_dir = Path(os.path.dirname(os.path.abspath(__file__))) / "sounds"
+        self.sounds_dir.mkdir(exist_ok=True)
+        
+        # Define sound files
+        self.sounds = {
+            "reminder_end": str(self.sounds_dir / "reminder_end.mp3"),
+            "azan_start": str(self.sounds_dir / "azan_start.mp3"),
+            "iqamah_end": str(self.sounds_dir / "iqamah_end.mp3"),
+            "notification": str(self.sounds_dir / "notification.mp3")
+        }
+        
+        # Log available sounds
+        self._log_available_sounds()
+    
+    def _log_available_sounds(self):
+        """Log which sound files are available"""
+        available_sounds = []
+        missing_sounds = []
+        
+        for sound_name, sound_path in self.sounds.items():
+            if os.path.exists(sound_path):
+                available_sounds.append(sound_name)
+            else:
+                missing_sounds.append(sound_name)
+        
+        if available_sounds:
+            logger.info(f"Available sounds: {', '.join(available_sounds)}")
+        if missing_sounds:
+            logger.warning(f"Missing sound files: {', '.join(missing_sounds)}")
+    
+    def play_sound(self, sound_type):
+        """Play a sound by type"""
+        if sound_type not in self.sounds:
+            logger.warning(f"Unknown sound type: {sound_type}")
+            return False
+            
+        sound_path = self.sounds[sound_type]
+        
+        if not os.path.exists(sound_path):
+            logger.warning(f"Sound file not found: {sound_path}")
+            return False
+            
+        try:
+            # Stop any currently playing sound
+            self.player.stop()
+            
+            # Set the new media source and play
+            self.player.setSource(QUrl.fromLocalFile(sound_path))
+            self.player.play()
+            logger.info(f"Playing sound: {sound_type}")
+            return True
+        except Exception as e:
+            logger.error(f"Error playing sound {sound_type}: {str(e)}")
+            return False
+    
+    def stop_sound(self):
+        """Stop any currently playing sound"""
+        self.player.stop()
+
 # Add this class after the UITheme class
 class FontManager:
     """Manages custom fonts for the application"""
@@ -524,10 +598,34 @@ class IntegratedAlert:
         self.timer.timeout.connect(self.update_countdown)
         self.remaining_time = 0
         self.countdown_label = None
+        
+        # Initialize alert_type attribute
+        self.alert_type = None
+        
+        # Sound notification thresholds (in seconds)
+        self.sound_thresholds = {
+            "reminder": 5,  # Play sound when 5 seconds remaining for reminders
+            "iqamah": 30    # Play sound when 30 seconds remaining for iqamah
+        }
+        
+        # Track if end sound has been played
+        self.end_sound_played = False
+        
+        # Create audio manager if using audio
+        if 'QMediaPlayer' in globals():
+            self.audio_manager = AudioManager()
+        else:
+            self.audio_manager = None
     
     def show_alert(self, message, duration=10, alert_type="reminder"):
         # Remove existing alert if any
         self.hide_alert()
+        
+        # Store the alert type
+        self.alert_type = alert_type
+        
+        # Reset end sound flag
+        self.end_sound_played = False
         
         # Create alert frame
         self.alert_frame = QFrame(self.parent)
@@ -536,10 +634,19 @@ class IntegratedAlert:
         # Set background color based on alert type
         if "AZAN" in message:
             bg_color = UITheme.ALERT_AZAN
+            # Play azan start sound if audio manager exists
+            if hasattr(self, 'audio_manager') and self.audio_manager:
+                self.audio_manager.play_sound("azan_start")
         elif "IQAMAH" in message:
             bg_color = UITheme.ALERT_IQAMAH
+            # Play notification sound if audio manager exists
+            if hasattr(self, 'audio_manager') and self.audio_manager:
+                self.audio_manager.play_sound("notification")
         else:  # Reminder
             bg_color = UITheme.ALERT_REMINDER
+            # Play notification sound if audio manager exists
+            if hasattr(self, 'audio_manager') and self.audio_manager:
+                self.audio_manager.play_sound("notification")
             
         self.alert_frame.setStyleSheet(f"""
             QFrame#alertFrame {{
@@ -605,6 +712,22 @@ class IntegratedAlert:
         if self.countdown_label:
             self.countdown_label.setText(f"Closing in {self.remaining_time} seconds")
         
+        # Check if we need to play an end sound
+        if hasattr(self, 'end_sound_played') and hasattr(self, 'audio_manager') and self.audio_manager:
+            if not self.end_sound_played:
+                threshold = self.sound_thresholds.get(self.alert_type, 5)
+                
+                if self.remaining_time <= threshold:
+                    self.end_sound_played = True
+                    
+                    # Play appropriate end sound
+                    if self.alert_type == "iqamah":
+                        self.audio_manager.play_sound("iqamah_end")
+                        logger.info("Playing iqamah end sound")
+                    elif self.alert_type == "reminder":
+                        self.audio_manager.play_sound("reminder_end")
+                        logger.info("Playing reminder end sound")
+        
         if self.remaining_time <= 0:
             self.hide_alert()
     
@@ -613,6 +736,11 @@ class IntegratedAlert:
             self.timer.stop()
             self.alert_frame.deleteLater()
             self.alert_frame = None
+            
+            # Stop any playing sounds if audio manager exists
+            if hasattr(self, 'audio_manager') and self.audio_manager:
+                self.audio_manager.stop_sound()
+
 
 # Alert Manager
 class AlertManager:
@@ -694,7 +822,7 @@ class AlertManager:
     
     def show_alert(self, message, alert_type):
         """Show an alert with the given message."""
-         # Replace prayer names with Arabic versions in the message
+        # Replace prayer names with Arabic versions in the message
         for prayer_name, arabic_name in UITheme.PRAYER_NAMES_ARABIC.items():
             if prayer_name in message:
                 message = message.replace(prayer_name, arabic_name)
@@ -731,6 +859,7 @@ class AlertManager:
             self.show_alert("TEST IQAMAH ALERT", "iqamah")
         else:
             self.show_alert("TEST REMINDER ALERT", "reminder")
+
 
 # Marquee Animation Manager
 class MarqueeManager:
