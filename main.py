@@ -601,7 +601,7 @@ class IntegratedAlert:
         
         # Initialize alert_type attribute
         self.alert_type = None
-        
+         
         # Sound notification thresholds (in seconds)
         self.sound_thresholds = {
             "reminder": 5,  # Play sound when 5 seconds remaining for reminders
@@ -616,6 +616,14 @@ class IntegratedAlert:
             self.audio_manager = AudioManager()
         else:
             self.audio_manager = None
+
+    def format_time(self, seconds):
+        """Format seconds into minutes and seconds display"""
+        minutes, seconds = divmod(seconds, 60)
+        if minutes > 0:
+            return f"{minutes} min {seconds} sec"
+        else:
+            return f"{seconds} seconds"
     
     def show_alert(self, message, duration=10, alert_type="reminder"):
         # Remove existing alert if any
@@ -670,7 +678,8 @@ class IntegratedAlert:
         layout.addWidget(alert_label)
         
         # Countdown label
-        self.countdown_label = QLabel(f"Closing in {duration} seconds")
+        formatted_time = self.format_time(duration)
+        self.countdown_label = QLabel(f"Closing in {formatted_time}")
         self.countdown_label.setFont(QFont("Arial", 24))
         self.countdown_label.setStyleSheet("color: white;")
         self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -710,7 +719,8 @@ class IntegratedAlert:
     def update_countdown(self):
         self.remaining_time -= 1
         if self.countdown_label:
-            self.countdown_label.setText(f"Closing in {self.remaining_time} seconds")
+            formatted_time = self.format_time(self.remaining_time)
+            self.countdown_label.setText(f"Closing in {formatted_time}")
         
         # Check if we need to play an end sound
         if hasattr(self, 'end_sound_played') and hasattr(self, 'audio_manager') and self.audio_manager:
@@ -788,6 +798,8 @@ class AlertManager:
                         
                         # Calculate time differences
                         diff_seconds = (prayer_datetime - current_datetime).total_seconds()
+
+                        logger.debug(f"Prayer: {prayer}, Time: {time_24h}, Diff: {diff_seconds} seconds, Alert active: {self.alert_active}")                    
                         
                         # 10 minutes before prayer time (reminder)
                         if 540 <= diff_seconds <= 600 and not self.alert_active:
@@ -802,7 +814,7 @@ class AlertManager:
                             self.current_alert = prayer
                         
                         # At prayer time (Azan)
-                        elif -10 <= diff_seconds <= 10 and not self.alert_active:
+                        elif -60 <= diff_seconds <= 60 and not self.alert_active:
                             self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
                             self.alert_active = True
                             self.current_alert = prayer
@@ -1471,6 +1483,9 @@ class PrayerTimesUI(QMainWindow):
         
         # Check for alerts
         self.alert_manager.check_alerts(current)
+        if self.alert_manager.alert_active and not self.alert_manager.integrated_alert.alert_frame:
+            self.alert_manager.alert_active = False
+            self.alert_manager.current_alert = None
     
     def update_prayer_display(self):
         """Update the prayer times display with today's prayer times."""
@@ -1597,6 +1612,17 @@ class PrayerTimesUI(QMainWindow):
             except Exception as e:
                 logger.error(f"Failed to save CSV: {str(e)}")
                 QMessageBox.critical(self.settings_dialog, "Error", f"Failed to save CSV: {str(e)}")
+    
+    
+    def test_prayer_alert(self, prayer_name):
+        """Test alert for a specific prayer time"""
+        today = datetime.datetime.now().strftime("%d/%m/%Y")
+        today_prayers = self.data_manager.get_prayer_times_for_date(today)
+        
+        if today_prayers and prayer_name in today_prayers:
+            self.alert_manager.show_alert(f"{prayer_name.upper()} AZAN IS NOW", "azan")
+            return True
+        return False
 
 # Main application
 class PrayerTimesApp:
@@ -1625,18 +1651,6 @@ if __name__ == "__main__":
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "app_icon.svg")
         if os.path.exists(icon_path):
             app.setWindowIcon(QIcon(icon_path))
-        
-        # # Set up Arabic font support
-        # font_db = QFontDatabase()
-        # # Try to find a suitable font for Arabic text
-        # arabic_fonts = ["Arial", "Tahoma", "Segoe UI", "Noto Sans Arabic", "Amiri"]
-        # default_font = QFont()
-        # for font_name in arabic_fonts:
-        #     if font_name in font_db.families():
-        #         default_font = QFont(font_name)
-        #         logger.info(f"Using {font_name} for Arabic text support")
-        #         break
-        # app.setFont(default_font)
 
         prayer_times_app = PrayerTimesApp()
         prayer_times_app.run()

@@ -32584,3 +32584,103 @@ KeyError: 'Imsak'
 2025-04-07 15:57:40,217 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
 2025-04-07 15:57:45,368 - PrayerTimesApp - INFO - Playing sound: azan_start
 2025-04-07 15:57:45,374 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-07 16:01:51,834 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-07 16:01:51,836 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-07 16:01:51,837 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-07 16:01:51,840 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-07 16:01:52,828 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-07 16:01:52,893 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-07 16:08:00,164 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-07 16:08:00,175 - PrayerTimesApp - INFO - Alert shown: GET READY FOR ASAR PRAYER IN 10 MINUTES (reminder)
+2025-04-07 16:08:25,246 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-07 16:08:25,247 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-07 16:50:55,542 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-07 16:50:55,543 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-07 16:50:55,544 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-07 16:50:55,545 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-07 16:50:56,604 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-07 16:50:56,696 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-07 16:51:03,383 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-07 16:51:03,391 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-07 16:51:09,947 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-07 16:51:09,951 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-07 16:51:33,080 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-07 16:51:33,084 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-08 10:24:33,240 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:24:33,263 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:24:33,264 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:24:33,285 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:24:34,394 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:24:34,534 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:24:47,180 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:24:47,187 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:38:07,245 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:38:07,252 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:38:07,252 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:38:07,254 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:38:08,689 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:38:08,937 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:39:58,338 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:39:58,343 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:39:58,345 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:39:58,346 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:39:59,677 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:39:59,864 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:40:01,700 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:40:52,002 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:40:52,003 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:40:52,004 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:40:52,005 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:40:53,325 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:40:53,530 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:40:56,504 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:44:00,349 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:44:00,350 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:44:00,351 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:44:00,352 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:44:01,663 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:44:01,871 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:44:04,462 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:45:34,755 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:45:34,772 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:45:34,773 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:45:34,775 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:45:34,850 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:45:37,087 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:45:54,930 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:45:55,096 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:45:55,342 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:45:58,611 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:45:59,551 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:46:16,284 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:46:16,286 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:46:16,287 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:46:16,291 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:46:16,369 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:46:18,539 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-08 10:46:29,750 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:46:29,752 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:46:29,754 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:46:29,759 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:46:29,945 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:46:32,618 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-08 10:46:55,001 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:46:55,012 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:46:55,015 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:46:55,019 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:46:56,323 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:46:56,503 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:46:59,150 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:46:59,157 - PrayerTimesApp - INFO - Alert shown: TEST IQAMAH ALERT (iqamah)
+2025-04-08 10:47:12,160 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-08 10:47:12,162 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-08 10:47:12,163 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-08 10:47:12,167 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-08 10:47:12,722 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-08 10:47:12,877 - PrayerTimesApp - INFO - Background image set: C:/Users/proto/Downloads/Untitled design.jpg
+2025-04-08 10:47:15,289 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-08 10:47:15,297 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
+2025-04-08 10:47:23,035 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-08 10:47:23,040 - PrayerTimesApp - INFO - Alert shown: TEST REMINDER ALERT (reminder)
+2025-04-08 10:47:37,498 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-08 10:47:37,501 - PrayerTimesApp - INFO - Alert shown: TEST AZAN ALERT (azan)
