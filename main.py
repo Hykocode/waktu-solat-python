@@ -47,13 +47,13 @@ class UITheme:
     
     # Prayer names in Arabic
     PRAYER_NAMES_ARABIC = {
-        "Imsak": "الإمساك",
-        "Subuh": "الفجر",
-        "Syuruk": "الشروق",
-        "Zohor": "الظهر",
-        "Asar": "العصر",
-        "Maghrib": "المغرب",
-        "Isyak": "العشاء"
+        "Imsak": "إِمْسَاك",
+        "Subuh": "صُبْح",
+        "Syuruk": "شُرُوق",
+        "Zohor": "ظُهْر",
+        "Asar": "عَصْر",
+        "Maghrib": "مَغْرِب",
+        "Isyak": "عِشَاء"
     }
 
     # Prayer card colors
@@ -601,7 +601,7 @@ class IntegratedAlert:
         
         # Initialize alert_type attribute
         self.alert_type = None
-         
+          
         # Sound notification thresholds (in seconds)
         self.sound_thresholds = {
             "reminder": 5,  # Play sound when 5 seconds remaining for reminders
@@ -763,6 +763,7 @@ class AlertManager:
         self.alert_active = False
         self.integrated_alert = IntegratedAlert(parent_widget)
     
+    # Modify the AlertManager.check_alerts method
     def check_alerts(self, current_datetime):
         """Check and display prayer time alerts."""
         # If no prayer times loaded, skip
@@ -785,6 +786,9 @@ class AlertManager:
         # Prayer names to check
         prayer_names = ["Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"]
         
+        # Prayer names that should have azan/iqamah alerts
+        azan_prayer_names = ["Subuh", "Zohor", "Asar", "Maghrib", "Isyak"]  # Excluding Imsak and Syuruk
+        
         # Check each prayer time for alerts
         for prayer in prayer_names:
             if prayer in today_prayers:
@@ -801,38 +805,64 @@ class AlertManager:
 
                         logger.debug(f"Prayer: {prayer}, Time: {time_24h}, Diff: {diff_seconds} seconds, Alert active: {self.alert_active}")                    
                         
-                        # 10 minutes before prayer time (reminder)
-                        if 540 <= diff_seconds <= 600 and not self.alert_active:
-                            self.show_alert(f"GET READY FOR {prayer.upper()} PRAYER IN 10 MINUTES", "reminder")
-                            self.alert_active = True
-                            self.current_alert = prayer
+                        # Special handling for Syuruk - only show reminder, with 28 minutes duration
+                        if prayer == "Syuruk":
+                            # 5 minutes before Syuruk
+                            if 270 <= diff_seconds <= 330 and not self.alert_active:
+                                self.show_alert(f"{prayer.upper()} IN 5 MINUTES", "reminder", duration=28*60)  # 28 minutes duration
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            # Reset alert state after alert window has passed
+                            elif diff_seconds < -60 and self.current_alert == prayer:
+                                self.hide_alert()
+                            continue  # Skip other alert checks for Syuruk
                         
-                        # 5 minutes before prayer time
-                        elif 270 <= diff_seconds <= 330 and not self.alert_active:
-                            self.show_alert(f"{prayer.upper()} PRAYER IN 5 MINUTES", "reminder")
-                            self.alert_active = True
-                            self.current_alert = prayer
+                        # Skip azan/iqamah alerts for Imsak
+                        if prayer == "Imsak":
+                            # Only show reminder
+                            if 270 <= diff_seconds <= 330 and not self.alert_active:
+                                self.show_alert(f"{prayer.upper()} IN 5 MINUTES", "reminder")
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            # Reset alert state after alert window has passed
+                            elif diff_seconds < -60 and self.current_alert == prayer:
+                                self.hide_alert()
+                            continue  # Skip other alert checks for Imsak
                         
-                        # At prayer time (Azan)
-                        elif -60 <= diff_seconds <= 60 and not self.alert_active:
-                            self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
-                            self.alert_active = True
-                            self.current_alert = prayer
-                        
-                        # 10 minutes after prayer time (Iqamah)
-                        elif -610 <= diff_seconds <= -590 and not self.alert_active:
-                            self.show_alert(f"TIME FOR {prayer.upper()} IQAMAH", "iqamah")
-                            self.alert_active = True
-                            self.current_alert = prayer
-                        
-                        # Reset alert state after alert window has passed
-                        elif diff_seconds < -610 and self.current_alert == prayer:
-                            self.hide_alert()
+                        # Regular prayer alerts (for prayers that should have azan)
+                        if prayer in azan_prayer_names:
+                            # 10 minutes before prayer time (reminder)
+                            if 540 <= diff_seconds <= 600 and not self.alert_active:
+                                self.show_alert(f"GET READY FOR {prayer.upper()} PRAYER IN 10 MINUTES", "reminder")
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            
+                            # 5 minutes before prayer time
+                            elif 270 <= diff_seconds <= 330 and not self.alert_active:
+                                self.show_alert(f"{prayer.upper()} PRAYER IN 5 MINUTES", "reminder")
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            
+                            # At prayer time (Azan)
+                            elif -60 <= diff_seconds <= 60 and not self.alert_active:
+                                self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            
+                            # 10 minutes after prayer time (Iqamah)
+                            elif -610 <= diff_seconds <= -590 and not self.alert_active:
+                                self.show_alert(f"TIME FOR {prayer.upper()} IQAMAH", "iqamah")
+                                self.alert_active = True
+                                self.current_alert = prayer
+                            
+                            # Reset alert state after alert window has passed
+                            elif diff_seconds < -610 and self.current_alert == prayer:
+                                self.hide_alert()
                 
-                except (ValueError, AttributeError) as e:
-                    logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
+                except (ValueError, AttributeError) as e:logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
+
     
-    def show_alert(self, message, alert_type):
+    def show_alert(self, message, alert_type, duration=None):
         """Show an alert with the given message."""
         # Replace prayer names with Arabic versions in the message
         for prayer_name, arabic_name in UITheme.PRAYER_NAMES_ARABIC.items():
@@ -842,19 +872,21 @@ class AlertManager:
         if hasattr(self.parent, 'update_marquee_text'):
             self.parent.update_marquee_text(message)
         
-        # Set duration based on alert type
-        if alert_type == "azan":
-            duration = 60 * 3  # 3 minutes for azan alerts
-        elif alert_type == "iqamah":
-            duration = 60 * 10  # 10 minutes for iqamah alerts
-        else:  # reminder
-            duration = 30  # 30 seconds for reminders
+        # Set duration based on alert type if not explicitly provided
+        if duration is None:
+            if alert_type == "azan":
+                duration = 60 * 3  # 3 minutes for azan alerts
+            elif alert_type == "iqamah":
+                duration = 60 * 10  # 10 minutes for iqamah alerts
+            else:  # reminder
+                duration = 30  # 30 seconds for reminders
         
         # Show the integrated alert
         self.integrated_alert.show_alert(message, duration, alert_type)
         
         self.alert_active = True
-        logger.info(f"Alert shown: {message} ({alert_type})")
+        logger.info(f"Alert shown: {message} ({alert_type}), duration: {duration} seconds")
+
     
     def hide_alert(self):
         """Hide the current alert."""
@@ -922,8 +954,9 @@ class MarqueeManager:
 class UIBuilder:
     """Responsible for building UI components"""
     
+# In UIBuilder.create_header method, add a minimize button next to the settings button:
     @staticmethod
-    def create_header(mosque_name, settings_callback):
+    def create_header(mosque_name, settings_callback,):
         """Create the header section with mosque info and time display."""
         header_frame = QFrame()
         header_frame.setObjectName("headerFrame")
@@ -973,25 +1006,6 @@ class UIBuilder:
         # Add a spacer between left and right sections
         header_layout.addSpacing(20)
         
-        # Settings button at top right
-        settings_button = QPushButton("")
-        settings_button.setObjectName("settingsButton")
-        settings_button.setFont(QFont("Arial", 16))
-        settings_button.setFixedSize(40, 40)
-        settings_button.setStyleSheet(f"""
-            QPushButton#settingsButton {{
-                background-color: {UITheme.PRIMARY_COLOR};
-                color: {UITheme.TEXT_PRIMARY};
-                border: none;
-                border-radius: 20px;
-                padding: 0px;
-            }}
-            QPushButton#settingsButton:hover {{
-                background-color: #2563EB;
-            }}
-        """)
-        settings_button.clicked.connect(settings_callback)
-        
         # Right side - Time and date
         time_info_layout = QVBoxLayout()
         time_info_layout.setSpacing(8)
@@ -1027,10 +1041,38 @@ class UIBuilder:
         header_right_layout = QHBoxLayout()
         header_right_layout.setSpacing(10)
         header_right_layout.addLayout(time_info_layout)
-        header_right_layout.addWidget(settings_button, alignment=Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignRight)
+        
+        # Add window control buttons
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(5)
+        
+
+        
+        # Settings button
+        settings_button = QPushButton("")  # Unicode gear symbol
+        settings_button.setObjectName("settingsButton")
+        settings_button.setFont(QFont("Arial", 16))
+        settings_button.setFixedSize(40, 40)
+        settings_button.setStyleSheet(f"""
+            QPushButton#settingsButton {{
+                background-color: {UITheme.PRIMARY_COLOR};
+                color: {UITheme.TEXT_PRIMARY};
+                border: none;
+                border-radius: 20px;
+                padding: 0px;
+            }}
+            QPushButton#settingsButton:hover {{
+                background-color: #2563EB;
+            }}
+        """)
+        settings_button.clicked.connect(settings_callback)
+        buttons_layout.addWidget(settings_button)
+        
+        header_right_layout.addLayout(buttons_layout)
         header_layout.addLayout(header_right_layout, 2)
         
         return header_frame, mosque_label, hijri_label, time_label, date_label
+
     
     @staticmethod
     def create_flash_message_bar(flash_message):
@@ -1085,7 +1127,7 @@ class UIBuilder:
     
     @staticmethod
     def create_prayer_cards(prayer_names):
-        """Create prayer time cards for display."""
+        """Create prayer time cards for display in reverse order (right-to-left)."""
         prayer_cards_container = QWidget()
         prayer_cards_container.setObjectName("prayerCardsContainer")
         prayer_cards_container.setStyleSheet(f"""
@@ -1101,7 +1143,10 @@ class UIBuilder:
         prayer_labels = {}
         prayer_times_labels = {}
         
-        for prayer in prayer_names:
+        # Reverse the prayer names list to display in reverse order
+        reversed_prayer_names = list(reversed(prayer_names))
+        
+        for prayer in reversed_prayer_names:
             card = QFrame()
             card.setObjectName(f"{prayer}Card")
             card.setStyleSheet(f"""
@@ -1115,7 +1160,7 @@ class UIBuilder:
             """)
             card_layout = QVBoxLayout(card)
             
-             # Only Arabic prayer name (no Malay name)
+            # Only Arabic prayer name (no Malay name)
             arabic_name = UITheme.PRAYER_NAMES_ARABIC.get(prayer, prayer)
             name_label = QLabel(arabic_name)
             name_label.setObjectName(f"{prayer}NameLabel")
@@ -1138,6 +1183,7 @@ class UIBuilder:
             prayer_cards_layout.addWidget(card)
         
         return prayer_cards_container, prayer_labels, prayer_times_labels
+
     
     @staticmethod
     def create_content_area():
@@ -1324,6 +1370,14 @@ class PrayerTimesUI(QMainWindow):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
             self.close()  # Exit the application
+        elif event.key() == Qt.Key.Key_F11:
+            # Toggle between fullscreen and normal
+            if self.isFullScreen():
+                self.showNormal()
+            else:
+                self.showFullScreen()
+
+
     
     def setup_ui(self):
         # Main container with dark background
@@ -1338,7 +1392,7 @@ class PrayerTimesUI(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
-        # Create header section
+        # Create header section 
         header_frame, self.mosque_label, self.hijri_label, self.time_label, self.date_label = UIBuilder.create_header(
             self.config_manager.get("mosque_name", "Mosque Name"),
             self.open_settings
@@ -1369,6 +1423,70 @@ class PrayerTimesUI(QMainWindow):
         # Initialize the clock
         self.update_time()
     
+    def minimize_window(self):
+        """Minimize the application window."""
+        self.showMinimized()
+        logger.info("Application window minimized")
+    
+    def toggle_fullscreen(self):
+        """Toggle between fullscreen and windowed mode."""
+        if self.isFullScreen():
+            # Exit fullscreen mode 
+            self.showNormal()  # First go to normal mode instead of maximized
+            
+            # Restore window flags
+            self.setWindowFlags(Qt.WindowType.Window)
+            self.show()  # Need to call show() after changing window flags
+            
+            # Then maximize
+            self.showMaximized()
+            logger.info("Exited fullscreen mode")
+            
+            # Show a brief notification about keyboard shortcuts
+            if hasattr(self, 'marquee_manager'):
+                original_text = self.marquee_manager.original_text
+                self.marquee_manager.update_text("Exited fullscreen mode. Press F11 to enter fullscreen, ESC to exit.")
+                # Restore original text after 5 seconds
+                QTimer.singleShot(5000, lambda: self.marquee_manager.update_text(original_text))
+        else:
+            # Enter true fullscreen mode
+            # Hide first to prevent flickering
+            self.hide()
+            
+            # Set window flags to remove title bar, make it stay on top, and bypass window manager
+            self.setWindowFlags(
+                Qt.WindowType.Window | 
+                Qt.WindowType.FramelessWindowHint | 
+                Qt.WindowType.WindowStaysOnTopHint | 
+                Qt.WindowType.X11BypassWindowManagerHint  # This helps on some Linux systems
+            )
+            
+            # Get the screen geometry
+            screen_geometry = QApplication.primaryScreen().geometry()
+            
+            # Set the window geometry to match the screen
+            self.setGeometry(screen_geometry)
+            
+            # Show and then go fullscreen
+            self.show()
+            self.showFullScreen()
+            
+            # Raise to top to ensure it's above everything
+            self.raise_()
+            self.activateWindow()
+            
+            logger.info("Entered fullscreen mode")
+            
+            # Show a brief notification about keyboard shortcuts
+            if hasattr(self, 'marquee_manager'):
+                original_text = self.marquee_manager.original_text
+                self.marquee_manager.update_text("Entered fullscreen mode. Press F11 or ESC to exit.")
+                # Restore original text after 5 seconds
+                QTimer.singleShot(5000, lambda: self.marquee_manager.update_text(original_text))
+
+
+
+
     def open_settings(self):
         """Open the settings dialog and populate it with the current settings."""
         # Check if the settings dialog is already open
@@ -1628,6 +1746,7 @@ class PrayerTimesUI(QMainWindow):
 class PrayerTimesApp:
     def __init__(self):
 
+        
         # Load custom fonts
         FontManager.load_fonts()
 
