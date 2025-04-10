@@ -9,9 +9,9 @@ from pathlib import Path
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, 
                             QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
-                            QGridLayout, QSpacerItem, QSizePolicy, QScrollArea)
+                            QGridLayout, QSpacerItem, QSizePolicy, QScrollArea,QDialog)
 from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup,QUrl
-from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase
+from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase, QPixmap, QPainter, QBrush
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 # Set up logging
@@ -356,6 +356,7 @@ class ConfigManager:
             "mosque_name": "",
             "flash_message": "Welcome to the Mosque Prayer Times Display",
             "background_image_path": "",
+            "background_scaling_mode": "cover",  # Add this line
             "data_file_path": str(self.base_dir / "prayer_times.csv")
         }
         self.config = self.load_config()
@@ -813,7 +814,7 @@ class AlertManager:
                                 self.alert_active = True
                                 self.current_alert = prayer
                             # Reset alert state after alert window has passed
-                            elif diff_seconds < -60 and self.current_alert == prayer:
+                            elif diff_seconds < -1980 and self.current_alert == prayer:
                                 self.hide_alert()
                             continue  # Skip other alert checks for Syuruk
                         
@@ -1190,14 +1191,23 @@ class UIBuilder:
         """Create the main content area."""
         content_area = QWidget()
         content_area.setObjectName("contentArea")
-        content_area.setStyleSheet("background-color: white;")
+        content_area.setStyleSheet(f"""
+            QWidget#contentArea {{
+                background-color: {UITheme.DARK_BG};
+            }}
+        """)
         content_layout = QVBoxLayout(content_area)
         content_layout.setContentsMargins(20, 20, 20, 20)
         
         # Add spacer to push prayer cards to bottom
         content_layout.addStretch(1)
         
+        # Store the original resize event
+        content_area._original_resize_event = content_area.resizeEvent
+        
         return content_area
+
+
     
     @staticmethod
     def create_settings_dialog(config_manager, data_manager, update_callbacks):
@@ -1340,7 +1350,11 @@ class PrayerTimesUI(QMainWindow):
         # Apply the saved background image if it exists
         background_image_path = self.config_manager.get("background_image_path")
         if background_image_path and os.path.exists(background_image_path):
-            self.set_background_image(background_image_path)
+            scaling_mode = self.config_manager.get("background_scaling_mode", "cover")
+            self.set_background_image(background_image_path, scaling_mode)
+
+
+
         
         # Timer for updating the clock and checking alerts
         self.timer = QTimer(self)
@@ -1626,7 +1640,10 @@ class PrayerTimesUI(QMainWindow):
             # Update prayer times and highlight current prayer
             current_time = datetime.datetime.now().time()
             current_prayer = None
+            next_prayer_time = None
             
+            # First pass: find all prayer times and the next prayer
+            prayer_time_objects = {}
             for prayer in self.prayer_names:
                 if prayer in today_prayers:
                     # Update display
@@ -1636,28 +1653,60 @@ class PrayerTimesUI(QMainWindow):
                     self.prayer_labels[prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY};")
                     self.prayer_times_labels[prayer].setStyleSheet(f"color: {UITheme.TEXT_ACCENT};")
                     
-                    # Check if this is the current prayer
+                    # Parse prayer time
                     try:
                         time_24h = TimeUtils.convert_12h_to_24h(today_prayers[prayer])
                         if time_24h:
                             hour, minute = map(int, time_24h.split(':'))
                             prayer_time = datetime.time(hour, minute)
-                            
-                            # Highlight the current prayer if the current time is within or past the prayer time
-                            if current_time >= prayer_time:
-                                current_prayer = prayer
+                            prayer_time_objects[prayer] = prayer_time
                     except (ValueError, TypeError):
                         logger.warning(f"Invalid prayer time format for {prayer}: {today_prayers[prayer]}")
+            
+            # Second pass: determine current prayer
+            for i, prayer in enumerate(self.prayer_names):
+                if prayer not in prayer_time_objects:
+                    continue
+                    
+                prayer_time = prayer_time_objects[prayer]
+                
+                # Special handling for Syuruk - only highlight for 30 minutes
+                if prayer == "Syuruk":
+                    # Calculate minutes since Syuruk
+                    now = datetime.datetime.now()
+                    syuruk_datetime = datetime.datetime.combine(now.date(), prayer_time)
+                    minutes_since_syuruk = (now - syuruk_datetime).total_seconds() / 60
+                    
+                    # Only highlight Syuruk if we're within 30 minutes after it
+                    if current_time >= prayer_time and minutes_since_syuruk <= 30:
+                        current_prayer = prayer
+                # For other prayers
+                elif current_time >= prayer_time:
+                    # Check if there's a next prayer and we haven't passed it
+                    next_idx = i + 1
+                    while next_idx < len(self.prayer_names):
+                        next_prayer = self.prayer_names[next_idx]
+                        if next_prayer in prayer_time_objects:
+                            next_prayer_time = prayer_time_objects[next_prayer]
+                            if current_time < next_prayer_time:
+                                current_prayer = prayer
+                            break
+                        next_idx += 1
+                    
+                    # If we're at the last prayer of the day
+                    if next_idx >= len(self.prayer_names):
+                        current_prayer = prayer
             
             # Highlight the current prayer
             if current_prayer:
                 self.prayer_labels[current_prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; font-weight: bold;")
                 self.prayer_times_labels[current_prayer].setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; font-weight: bold;")
                 self.prayer_times_labels[current_prayer].setStyleSheet(f"background-color: {UITheme.HIGHLIGHT_COLOR}; color: {UITheme.TEXT_PRIMARY};")
+
     
     def update_flash_message(self, message):
         """Update the flash message in the configuration and display."""
-        if message:
+        if message: 
             self.config_manager.set("flash_message", message)
             self.marquee_manager.update_text(message)
             if hasattr(self, 'settings_dialog') and self.settings_dialog.isVisible():
@@ -1672,35 +1721,251 @@ class PrayerTimesUI(QMainWindow):
         )
         
         if file_path:
-            success = self.set_background_image(file_path)
-            if success:
-                self.config_manager.set("background_image_path", file_path)
-                QMessageBox.information(self.settings_dialog, "Success", "Background image applied successfully.")
-            else:
-                QMessageBox.critical(self.settings_dialog, "Error", "Failed to apply background image.")
-    
-    def set_background_image(self, image_path):
-        """Set a background image for the content area only."""
+            logger.info(f"Selected background image: {file_path}")
+            
+            # Verify the file exists and is readable
+            if not os.path.exists(file_path):
+                logger.error(f"Selected file does not exist: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", "Selected file does not exist.")
+                return
+                
+            if not os.access(file_path, os.R_OK):
+                logger.error(f"Selected file is not readable: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", "Selected file is not readable.")
+                return
+            
+            # Test loading the image with QPixmap
+            test_pixmap = QPixmap(file_path)
+            if test_pixmap.isNull():
+                logger.error(f"Failed to load image as pixmap: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", 
+                                "Failed to load the selected image. The file may be corrupted or in an unsupported format.")
+                return
+                
+            logger.info(f"Successfully loaded test pixmap: {file_path}, size: {test_pixmap.width()}x{test_pixmap.height()}")
+            
+            # Create a dialog to select scaling mode
+            scaling_dialog = QDialog(self.settings_dialog)
+            scaling_dialog.setWindowTitle("Image Scaling Options")
+            scaling_dialog.setMinimumWidth(400)
+            scaling_dialog.setStyleSheet(UITheme.settings_dialog_style())
+            
+            layout = QVBoxLayout(scaling_dialog)
+            
+            # Add explanation label
+            layout.addWidget(QLabel("Select how the background image should be scaled:"))
+            
+            # Add radio buttons for scaling options
+            cover_radio = QPushButton("Cover (Fill while maintaining aspect ratio)")
+            cover_radio.setStyleSheet(UITheme.primary_button_style())
+            cover_radio.clicked.connect(lambda: apply_scaling("cover"))
+            
+            contain_radio = QPushButton("Contain (Show entire image)")
+            contain_radio.setStyleSheet(UITheme.primary_button_style())
+            contain_radio.clicked.connect(lambda: apply_scaling("contain"))
+            
+            stretch_radio = QPushButton("Stretch (Fill entire area)")
+            stretch_radio.setStyleSheet(UITheme.primary_button_style())
+            stretch_radio.clicked.connect(lambda: apply_scaling("stretch"))
+            
+            layout.addWidget(cover_radio)
+            layout.addWidget(contain_radio)
+            layout.addWidget(stretch_radio)
+            
+            # Function to apply selected scaling and close dialog
+            def apply_scaling(mode):
+                try:
+                    logger.info(f"Applying background image with scaling mode: {mode}")
+                    success = self.set_background_image(file_path, mode)
+                    if success:
+                        QMessageBox.information(self.settings_dialog, "Success", 
+                                            f"Background image applied with {mode} scaling.")
+                    else:
+                        QMessageBox.critical(self.settings_dialog, "Error", 
+                                            "Failed to apply background image.")
+                except Exception as e:
+                    logger.error(f"Error applying background image: {str(e)}", exc_info=True)
+                    QMessageBox.critical(self.settings_dialog, "Error", 
+                                        f"Error applying background image: {str(e)}")
+                scaling_dialog.accept()
+            
+            # Show the dialog
+            scaling_dialog.exec()
+
+
+        
+    def set_background_image(self, image_path, scaling_mode="cover"):
+        """Set a background image for the content area using a QLabel."""
         if not image_path or not os.path.exists(image_path):
             logger.warning(f"Background image path does not exist: {image_path}")
             return False
 
         try:
-            # Ensure the image path is valid and apply it as a background
-            style = f"""
-            QWidget#contentArea {{
-                background-image: url("{image_path}");
-                background-position: center;
-                background-repeat: no-repeat;
-                background-size: cover;
-            }}
-            """
-            self.content_area.setStyleSheet(style)
-            logger.info(f"Background image set: {image_path}")
+            # Import necessary modules
+            from PyQt6.QtGui import QPixmap, QPainter
+            
+            # Store the image path and scaling mode in config
+            self.config_manager.set("background_image_path", image_path)
+            self.config_manager.set("background_scaling_mode", scaling_mode)
+            
+            # Create a container widget for the background and content
+            container = QWidget()
+            container.setObjectName("bgContainer")
+            container.setStyleSheet(f"""
+                QWidget#bgContainer {{
+                    background-color: {UITheme.DARK_BG};
+                }}
+            """)
+            
+            # Create a layout for the container
+            container_layout = QVBoxLayout(container)
+            container_layout.setContentsMargins(0, 0, 0, 0)
+            container_layout.setSpacing(0)
+            
+            # Load the image directly
+            pixmap = QPixmap(image_path)
+            if pixmap.isNull():
+                logger.error(f"Failed to load image: {image_path}")
+                return False
+                
+            logger.info(f"Successfully loaded image: {image_path}, size: {pixmap.width()}x{pixmap.height()}")
+            
+            # Create a background label
+            bg_label = QLabel()
+            bg_label.setObjectName("bgLabel")
+            bg_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            # Set the scaled pixmap
+            self._update_background_pixmap(bg_label, pixmap, scaling_mode)
+            
+            # Add the background label to the container
+            container_layout.addWidget(bg_label)
+            
+            # Position the background label to fill the container
+            bg_label.setGeometry(0, 0, container.width(), container.height())
+            
+            # Create a transparent overlay widget for content
+            content_widget = QWidget(container)
+            content_widget.setObjectName("contentWidget")
+            content_widget.setStyleSheet("background-color: transparent;")
+            
+            # Create a layout for the content
+            content_layout = QVBoxLayout(content_widget)
+            content_layout.setContentsMargins(20, 20, 20, 20)
+            
+            # Transfer all widgets from the old content area
+            old_layout = self.content_area.layout()
+            if old_layout:
+                while old_layout.count():
+                    item = old_layout.takeAt(0)
+                    if item.widget():
+                        content_layout.addWidget(item.widget())
+                    elif item.spacerItem():
+                        content_layout.addSpacerItem(item.spacerItem())
+            
+            # Add stretch to push content to bottom
+            content_layout.addStretch(1)
+            
+            # Position the content widget to fill the container
+            content_widget.setGeometry(0, 0, container.width(), container.height())
+            
+            # Replace the content area in the main layout
+            main_layout = self.centralWidget().layout()
+            for i in range(main_layout.count()):
+                if main_layout.itemAt(i).widget() == self.content_area:
+                    main_layout.replaceWidget(self.content_area, container)
+                    break
+            
+            # Hide the old content area and show the new one
+            self.content_area.hide()
+            container.show()
+            
+            # Update the content_area reference
+            self.content_area = container
+            
+            # Store references to the background label and pixmap
+            self.bg_label = bg_label
+            self.bg_pixmap = pixmap
+            self.bg_scaling_mode = scaling_mode
+            
+            # Add resize event handler to update the background when resized
+            def resize_event(event):
+                # Update the background label size
+                bg_label.setGeometry(0, 0, container.width(), container.height())
+                # Update the content widget size
+                content_widget.setGeometry(0, 0, container.width(), container.height())
+                # Update the background pixmap scaling
+                self._update_background_pixmap(bg_label, self.bg_pixmap, self.bg_scaling_mode)
+                # Call the original resize event
+                QWidget.resizeEvent(container, event)
+            
+            container.resizeEvent = resize_event
+            
+            logger.info(f"Background image set successfully: {image_path}")
             return True
+            
         except Exception as e:
-            logger.error(f"Error setting background image: {str(e)}")
+            logger.error(f"Error setting background image: {str(e)}", exc_info=True)
             return False
+
+    def _update_background_pixmap(self, label, pixmap, scaling_mode):
+        """Update the background label with a scaled pixmap."""
+        try:
+            # Get the size of the label
+            label_size = label.size()
+            if label_size.width() <= 0 or label_size.height() <= 0:
+                # If the label doesn't have a valid size yet, use the content area size
+                label_size = self.content_area.size()
+            
+            # Scale the pixmap based on the scaling mode
+            if scaling_mode == "contain":
+                scaled_pixmap = pixmap.scaled(
+                    label_size,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+            elif scaling_mode == "stretch":
+                scaled_pixmap = pixmap.scaled(
+                    label_size,
+                    Qt.AspectRatioMode.IgnoreAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+            else:  # Default to "cover"
+                scaled_pixmap = pixmap.scaled(
+                    label_size,
+                    Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                
+                # If the scaled pixmap is larger than the label, crop it to center
+                if scaled_pixmap.width() > label_size.width() or scaled_pixmap.height() > label_size.height():
+                    # Create a new pixmap of the label size
+                    cropped_pixmap = QPixmap(label_size)
+                    cropped_pixmap.fill(Qt.GlobalColor.transparent)
+                    
+                    # Calculate the position to center the scaled pixmap
+                    x = max(0, (scaled_pixmap.width() - label_size.width()) // 2)
+                    y = max(0, (scaled_pixmap.height() - label_size.height()) // 2)
+                    
+                    # Draw the scaled pixmap onto the cropped pixmap
+                    painter = QPainter(cropped_pixmap)
+                    painter.drawPixmap(
+                        0, 0, label_size.width(), label_size.height(),
+                        scaled_pixmap, x, y, label_size.width(), label_size.height()
+                    )
+                    painter.end()
+                    
+                    scaled_pixmap = cropped_pixmap
+            
+            # Set the scaled pixmap on the label
+            label.setPixmap(scaled_pixmap)
+            
+        except Exception as e:
+            logger.error(f"Error updating background pixmap: {str(e)}", exc_info=True)
+
+
+
+
     
     def save_csv(self):
         """Save the current prayer times to a CSV file selected by the user."""
