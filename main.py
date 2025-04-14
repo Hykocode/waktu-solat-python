@@ -810,10 +810,13 @@ class AlertManager:
                         if prayer == "Syuruk":
                             # 5 minutes before Syuruk
                             if 270 <= diff_seconds <= 330 and not self.alert_active:
-                                self.show_alert(f"{prayer.upper()} IN 5 MINUTES", "reminder", duration=28*60)  # 28 minutes duration
+                                self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder", duration=28*60)  # 28 minutes duration
                                 self.alert_active = True
                                 self.current_alert = prayer
                             # Reset alert state after alert window has passed
+                            elif diff_seconds < 270 and diff_seconds > -1980 and self.current_alert == prayer:
+                                # Alert is still active but we're past the trigger window
+                                pass
                             elif diff_seconds < -1980 and self.current_alert == prayer:
                                 self.hide_alert()
                             continue  # Skip other alert checks for Syuruk
@@ -822,10 +825,13 @@ class AlertManager:
                         if prayer == "Imsak":
                             # Only show reminder
                             if 270 <= diff_seconds <= 330 and not self.alert_active:
-                                self.show_alert(f"{prayer.upper()} IN 5 MINUTES", "reminder")
+                                self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder")
                                 self.alert_active = True
                                 self.current_alert = prayer
                             # Reset alert state after alert window has passed
+                            elif diff_seconds < 270 and diff_seconds > -60 and self.current_alert == prayer:
+                                # Alert is still active but we're past the trigger window
+                                pass
                             elif diff_seconds < -60 and self.current_alert == prayer:
                                 self.hide_alert()
                             continue  # Skip other alert checks for Imsak
@@ -833,35 +839,43 @@ class AlertManager:
                         # Regular prayer alerts (for prayers that should have azan)
                         if prayer in azan_prayer_names:
                             # 10 minutes before prayer time (reminder)
-                            if 540 <= diff_seconds <= 600 and not self.alert_active:
-                                self.show_alert(f"GET READY FOR {prayer.upper()} PRAYER IN 10 MINUTES", "reminder")
+                            if 570 <= diff_seconds <= 630 and not self.alert_active:
+                                self.show_alert(f"Solat {prayer.upper()} 10 minit lagi", "reminder")
                                 self.alert_active = True
-                                self.current_alert = prayer
+                                self.current_alert = f"{prayer}_10min"
+                            # Reset alert state after 10-minute reminder window has passed
+                            elif diff_seconds < 570 and self.current_alert == f"{prayer}_10min":
+                                self.hide_alert()
                             
                             # 5 minutes before prayer time
                             elif 270 <= diff_seconds <= 330 and not self.alert_active:
-                                self.show_alert(f"{prayer.upper()} PRAYER IN 5 MINUTES", "reminder")
+                                self.show_alert(f" Solat {prayer.upper()} 5 minit lagi ", "reminder")
                                 self.alert_active = True
-                                self.current_alert = prayer
+                                self.current_alert = f"{prayer}_5min"
+                            # Reset alert state after 5-minute reminder window has passed
+                            elif diff_seconds < 270 and self.current_alert == f"{prayer}_5min":
+                                self.hide_alert()
                             
-                            # At prayer time (Azan)
-                            elif -60 <= diff_seconds <= 60 and not self.alert_active:
-                                self.show_alert(f"{prayer.upper()} AZAN IS NOW", "azan")
+                            # At prayer time (Azan) - use a small window of 60 seconds
+                            elif -30 <= diff_seconds <= 30 and not self.alert_active:
+                                self.show_alert(f"Azan {prayer.upper()}  ", "azan")
                                 self.alert_active = True
-                                self.current_alert = prayer
+                                self.current_alert = f"{prayer}_azan"
+                            # Reset alert state after azan window has passed
+                            elif diff_seconds < -30 and self.current_alert == f"{prayer}_azan":
+                                self.hide_alert()
                             
                             # 10 minutes after prayer time (Iqamah)
-                            elif -610 <= diff_seconds <= -590 and not self.alert_active:
-                                self.show_alert(f"TIME FOR {prayer.upper()} IQAMAH", "iqamah")
+                            elif -630 <= diff_seconds <= -570 and not self.alert_active:
+                                self.show_alert(f" IQAMAH", "iqamah")
                                 self.alert_active = True
-                                self.current_alert = prayer
-                            
-                            # Reset alert state after alert window has passed
-                            elif diff_seconds < -610 and self.current_alert == prayer:
+                                self.current_alert = f"{prayer}_iqamah"
+                            # Reset alert state after iqamah window has passed
+                            elif diff_seconds < -630 and self.current_alert == f"{prayer}_iqamah":
                                 self.hide_alert()
                 
-                except (ValueError, AttributeError) as e:logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
-
+                except (ValueError, AttributeError) as e:
+                    logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
     
     def show_alert(self, message, alert_type, duration=None):
         """Show an alert with the given message."""
