@@ -33604,3 +33604,215 @@ TypeError: PrayerTimesUI.set_background_image() takes 2 positional arguments but
 2025-04-16 13:23:23,676 - PrayerTimesApp - INFO - Configuration saved successfully.
 2025-04-16 13:23:23,700 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
 2025-04-16 13:23:23,707 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 15:48:48,574 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 15:48:48,579 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 15:48:48,580 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 15:48:48,583 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 15:48:50,067 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 15:48:50,241 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 15:48:50,242 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 15:48:50,311 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 15:48:50,326 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 16:11:17,848 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 16:11:17,856 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 16:11:17,856 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 16:11:17,859 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 16:11:19,199 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 16:11:19,387 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:11:19,390 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:11:19,441 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 16:11:19,449 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 16:11:30,406 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 16:11:30,412 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 16:11:30,415 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 16:11:30,417 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 16:11:31,791 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 16:11:32,077 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-16 16:11:32,091 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 10 minit lagi (reminder), duration: 30 seconds
+2025-04-16 16:11:32,092 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:11:32,094 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:11:32,157 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 16:11:32,187 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 16:11:57,126 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-16 16:11:57,126 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-16 16:12:03,261 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-16 16:12:03,272 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 10 minit lagi (reminder), duration: 30 seconds
+2025-04-16 16:12:28,324 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-16 16:12:28,324 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-16 16:16:30,571 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-16 16:16:30,579 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 5 minit lagi (reminder), duration: 30 seconds
+2025-04-16 16:16:55,626 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-16 16:16:55,626 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-16 16:17:01,631 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-16 16:17:01,642 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 5 minit lagi (reminder), duration: 30 seconds
+2025-04-16 16:17:26,679 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-16 16:17:26,679 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-16 16:21:30,980 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-16 16:21:30,986 - PrayerTimesApp - INFO - Alert shown: Azan ASAR (azan), duration: 180 seconds
+2025-04-16 16:25:34,842 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 16:25:34,846 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 16:25:34,850 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 16:25:34,853 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 16:25:35,528 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 16:25:35,751 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:25:35,753 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:25:35,807 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 16:25:35,827 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 16:26:26,300 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 16:26:26,302 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 16:26:26,307 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 16:26:26,311 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 16:26:27,448 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 16:26:27,593 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-16 16:26:27,599 - PrayerTimesApp - INFO - Alert shown: IQAMAH (iqamah), duration: 600 seconds
+2025-04-16 16:26:27,600 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:26:27,601 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 16:26:27,624 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 16:26:27,632 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-16 23:37:49,670 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-16 23:37:49,689 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-16 23:37:49,705 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-16 23:37:49,728 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-16 23:37:50,177 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-16 23:37:50,378 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 23:37:50,378 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-16 23:37:50,460 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-16 23:37:50,478 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 02:24:48,265 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 02:24:48,267 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 02:24:48,268 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 02:24:48,269 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 02:24:48,419 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 02:24:48,487 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 02:24:48,488 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 02:24:48,511 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 02:24:48,518 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 11:37:26,605 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 11:37:26,629 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 11:37:26,630 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 11:37:26,639 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 11:37:28,098 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 11:37:28,556 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 11:37:28,560 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 11:37:28,687 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 11:37:28,734 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 12:08:50,198 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 12:08:50,207 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 12:08:50,210 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 12:08:50,214 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 12:08:51,498 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 12:08:51,757 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:08:51,760 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:08:51,833 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 12:08:51,844 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 12:36:29,561 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 12:36:30,864 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 12:36:30,872 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 12:36:30,885 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 12:36:32,349 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 12:36:32,518 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:36:32,518 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:36:32,540 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 12:36:32,561 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 12:37:01,891 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 12:37:01,897 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 12:37:01,901 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 12:37:01,905 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 12:37:03,376 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 12:37:03,569 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:37:03,571 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 12:37:03,627 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 12:37:03,638 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-17 13:14:09,634 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-17 13:14:09,646 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-17 13:14:09,650 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-17 13:14:09,654 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-17 13:14:10,798 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-17 13:14:12,174 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 13:14:12,176 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-17 13:14:12,206 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-17 13:14:12,217 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-18 16:05:15,630 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-18 16:05:15,686 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-18 16:05:15,690 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-18 16:05:15,710 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-18 16:05:17,118 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-18 16:05:17,315 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-18 16:05:17,315 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-18 16:05:17,405 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-18 16:05:17,415 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg
+2025-04-18 16:12:30,404 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 16:12:30,426 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 16:12:55,456 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 16:12:55,456 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 16:13:02,459 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 16:13:02,464 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 16:13:27,491 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 16:13:27,491 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 16:17:30,464 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 16:17:30,471 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 16:17:55,626 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 16:17:55,627 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 16:18:02,509 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 16:18:02,516 - PrayerTimesApp - INFO - Alert shown: Solat ASAR 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 16:18:27,584 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 16:18:27,585 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 16:22:30,310 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-18 16:22:30,316 - PrayerTimesApp - INFO - Alert shown: Azan ASAR (azan), duration: 180 seconds
+2025-04-18 16:27:00,051 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 16:27:00,053 - PrayerTimesApp - INFO - Alert shown: IQAMAH (iqamah), duration: 600 seconds
+2025-04-18 16:36:31,461 - PrayerTimesApp - INFO - Playing sound: iqamah_end
+2025-04-18 16:36:31,461 - PrayerTimesApp - INFO - Playing iqamah end sound
+2025-04-18 19:09:30,284 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 19:09:30,297 - PrayerTimesApp - INFO - Alert shown: Solat MAGHRIB 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 19:09:55,294 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 19:09:55,295 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 19:10:01,325 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 19:10:01,327 - PrayerTimesApp - INFO - Alert shown: Solat MAGHRIB 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 19:10:26,382 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 19:10:26,383 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 19:14:30,188 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 19:14:30,195 - PrayerTimesApp - INFO - Alert shown: Solat MAGHRIB 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 19:14:55,281 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 19:14:55,283 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 19:15:02,292 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 19:15:02,299 - PrayerTimesApp - INFO - Alert shown: Solat MAGHRIB 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 19:15:27,380 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 19:15:27,381 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 19:19:30,228 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-18 19:19:30,235 - PrayerTimesApp - INFO - Alert shown: Azan MAGHRIB (azan), duration: 180 seconds
+2025-04-18 19:24:00,026 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 19:24:00,034 - PrayerTimesApp - INFO - Alert shown: IQAMAH (iqamah), duration: 600 seconds
+2025-04-18 19:33:31,702 - PrayerTimesApp - INFO - Playing sound: iqamah_end
+2025-04-18 19:33:31,703 - PrayerTimesApp - INFO - Playing iqamah end sound
+2025-04-18 20:16:30,139 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 20:16:30,154 - PrayerTimesApp - INFO - Alert shown: Solat ISYAK 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 20:16:55,316 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 20:16:55,316 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 20:17:02,354 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 20:17:02,364 - PrayerTimesApp - INFO - Alert shown: Solat ISYAK 10 minit lagi (reminder), duration: 30 seconds
+2025-04-18 20:17:27,384 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 20:17:27,384 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 20:21:30,293 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 20:21:30,305 - PrayerTimesApp - INFO - Alert shown: Solat ISYAK 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 20:21:55,363 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 20:21:55,363 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 20:22:02,358 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 20:22:02,370 - PrayerTimesApp - INFO - Alert shown: Solat ISYAK 5 minit lagi (reminder), duration: 30 seconds
+2025-04-18 20:22:27,425 - PrayerTimesApp - INFO - Playing sound: reminder_end
+2025-04-18 20:22:27,426 - PrayerTimesApp - INFO - Playing reminder end sound
+2025-04-18 20:26:30,338 - PrayerTimesApp - INFO - Playing sound: azan_start
+2025-04-18 20:26:30,343 - PrayerTimesApp - INFO - Alert shown: Azan ISYAK (azan), duration: 180 seconds
+2025-04-18 20:31:00,698 - PrayerTimesApp - INFO - Playing sound: notification
+2025-04-18 20:31:00,705 - PrayerTimesApp - INFO - Alert shown: IQAMAH (iqamah), duration: 600 seconds
+2025-04-18 20:40:32,680 - PrayerTimesApp - INFO - Playing sound: iqamah_end
+2025-04-18 20:40:32,681 - PrayerTimesApp - INFO - Playing iqamah end sound
+2025-04-19 00:11:31,410 - PrayerTimesApp - INFO - Main font loaded successfully: Outfit
+2025-04-19 00:11:31,419 - PrayerTimesApp - INFO - Arabic font loaded successfully: Cooper Arabic
+2025-04-19 00:11:31,419 - PrayerTimesApp - INFO - Configuration loaded and validated successfully.
+2025-04-19 00:11:31,430 - PrayerTimesApp - INFO - Prayer times loaded successfully: 365 entries.
+2025-04-19 00:11:32,430 - PrayerTimesApp - INFO - Available sounds: reminder_end, azan_start, iqamah_end, notification
+2025-04-19 00:11:32,515 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-19 00:11:32,516 - PrayerTimesApp - INFO - Configuration saved successfully.
+2025-04-19 00:11:32,553 - PrayerTimesApp - INFO - Successfully loaded image: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg, size: 1920x1080
+2025-04-19 00:11:32,561 - PrayerTimesApp - INFO - Background image set successfully: C:/Users/proto/Downloads/Strength isn’t always loud — sometimes, it crawls in silence. (1).jpg

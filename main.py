@@ -757,6 +757,7 @@ class AlertManager:
         self.data_manager = data_manager
         self.current_alert = None
         self.alert_active = False
+        self.triggered_alerts = {}  # Stores keys like "Isyak_10min"
         self.integrated_alert = IntegratedAlert(parent_widget)
     
     # Modify the AlertManager.check_alerts method
@@ -813,10 +814,14 @@ class AlertManager:
                     # Special handling for Syuruk - only a reminder is needed.
                     if prayer == "Syuruk":
                         if 270 <= diff_seconds <= 330:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_5min"
-                            self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder", duration=28*60)
+                            alert_key = f"{prayer}_5min"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder", duration=28*60)
                             return
+
 
                     # Special handling for Imsak - only a reminder is needed.
                     elif prayer == "Imsak":
@@ -826,32 +831,48 @@ class AlertManager:
                             self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder")
                             return
 
-                    # For prayers with azan alerts.
+                   # For prayers with azan alerts.
                     elif prayer in azan_prayer_names:
                         # 10 minutes before prayer time.
                         if 570 <= diff_seconds <= 630:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_10min"
-                            self.show_alert(f"Solat {prayer.upper()} 10 minit lagi", "reminder")
+                            alert_key = f"{prayer}_10min"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"Solat {prayer.upper()} 10 minit lagi", "reminder")
                             return
+
                         # 5 minutes before prayer time.
                         elif 270 <= diff_seconds <= 330:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_5min"
-                            self.show_alert(f"Solat {prayer.upper()} 5 minit lagi", "reminder")
+                            alert_key = f"{prayer}_5min"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"Solat {prayer.upper()} 5 minit lagi", "reminder")
                             return
+
                         # At prayer time: azan alert.
                         elif -30 <= diff_seconds <= 30:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_azan"
-                            self.show_alert(f"Azan {prayer.upper()}", "azan")
+                            alert_key = f"{prayer}_azan"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"Azan {prayer.upper()}", "azan")
                             return
+
                         # 10 minutes after prayer time: iqamah alert.
                         elif -300 <= diff_seconds <= -240:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_iqamah"
-                            self.show_alert("IQAMAH", "iqamah")
+                            alert_key = f"{prayer}_iqamah"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert("IQAMAH", "iqamah")
                             return
+
 
                 except (ValueError, AttributeError) as e:
                     logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
@@ -1612,6 +1633,12 @@ class PrayerTimesUI(QMainWindow):
         if self.alert_manager.alert_active and not self.alert_manager.integrated_alert.alert_frame:
             self.alert_manager.alert_active = False
             self.alert_manager.current_alert = None
+        
+        # Reset triggered alerts at midnight
+        if current.strftime("%H:%M:%S") == "00:00:00":
+            self.alert_manager.triggered_alerts.clear()
+            logger.info("Reset daily triggered alerts.")
+
     
     def update_prayer_display(self):
         """Update the prayer times display with today's prayer times."""
