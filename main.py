@@ -854,7 +854,7 @@ class AlertManager:
                             return
 
                         # At prayer time: azan alert.
-                        elif -30 <= diff_seconds <= 30:
+                        elif -1 <= diff_seconds <= 1:
                             alert_key = f"{prayer}_azan"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1699,7 +1699,7 @@ class PrayerTimesUI(QMainWindow):
                     minutes_since_syuruk = (now - syuruk_datetime).total_seconds() / 60
                     
                     # Only highlight Syuruk if we're within 30 minutes after it
-                    if current_time >= prayer_time and minutes_since_syuruk <= 30:
+                    if current_time >= prayer_time and minutes_since_syuruk <= 28:
                         current_prayer = prayer
                 # For other prayers
                 elif current_time >= prayer_time:
