@@ -338,13 +338,24 @@ class ConfigValidator:
             "background_image_path"
         )
         
+        # Validate logo_path (path, doesn't need to exist)
+        validated["logo_path"] = ConfigValidator.validate_path(
+            config.get("logo_path", default_config["logo_path"]),
+            "logo_path"
+        )
+        
         # Validate data_file_path (path, doesn't need to exist)
         validated["data_file_path"] = ConfigValidator.validate_path(
             config.get("data_file_path", default_config["data_file_path"]),
             "data_file_path"
         ) or default_config["data_file_path"]
         
+        # Validate background_scaling_mode
+        validated["background_scaling_mode"] = config.get("background_scaling_mode", default_config["background_scaling_mode"])
+        
         return validated
+
+
 
 # Configuration Manager
 class ConfigManager:
@@ -356,10 +367,12 @@ class ConfigManager:
             "mosque_name": "",
             "flash_message": "Welcome to the Mosque Prayer Times Display",
             "background_image_path": "",
-            "background_scaling_mode": "cover",  # Add this line
+            "background_scaling_mode": "cover",
+            "logo_path": "",  # Add this line for logo path
             "data_file_path": str(self.base_dir / "prayer_times.csv")
         }
         self.config = self.load_config()
+
     
     def _get_base_dir(self):
         """Get the base directory for the application."""
@@ -972,8 +985,8 @@ class UIBuilder:
     
 # In UIBuilder.create_header method, add a minimize button next to the settings button:
     @staticmethod
-    def create_header(mosque_name, settings_callback,):
-        """Create the header section with mosque info and time display."""
+    def create_header(mosque_name, settings_callback):
+        """Create the header section with mosque info, logo and time display."""
         header_frame = QFrame()
         header_frame.setObjectName("headerFrame")
         header_frame.setStyleSheet(f"""
@@ -986,7 +999,24 @@ class UIBuilder:
         header_layout = QHBoxLayout(header_frame)
         header_layout.setContentsMargins(20, 10, 20, 10)
         
-        # Left side - Mosque name and Hijri date
+        # Left side - Logo and mosque info
+        left_layout = QHBoxLayout()
+        left_layout.setSpacing(15)  # Space between logo and text
+        
+        # Logo on the left
+        logo_label = QLabel()
+        logo_label.setObjectName("logoLabel")
+        logo_label.setFixedSize(80, 80)  # Fixed size for the logo
+        logo_label.setScaledContents(True)  # Scale the logo to fit the label
+        logo_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        logo_label.setStyleSheet("""
+            QLabel#logoLabel {
+                background-color: transparent;
+            }
+        """)
+        left_layout.addWidget(logo_label)
+        
+        # Mosque name and Hijri date on the right of the logo
         mosque_info_layout = QVBoxLayout()
         mosque_info_layout.setSpacing(8)
         
@@ -1017,7 +1047,8 @@ class UIBuilder:
         hijri_label.setAlignment(Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter)
         mosque_info_layout.addWidget(hijri_label)
         
-        header_layout.addLayout(mosque_info_layout, 2)
+        left_layout.addLayout(mosque_info_layout)
+        header_layout.addLayout(left_layout, 2)
         
         # Add a spacer between left and right sections
         header_layout.addSpacing(20)
@@ -1062,8 +1093,6 @@ class UIBuilder:
         buttons_layout = QHBoxLayout()
         buttons_layout.setSpacing(5)
         
-
-        
         # Settings button
         settings_button = QPushButton("")  # Unicode gear symbol
         settings_button.setObjectName("settingsButton")
@@ -1087,8 +1116,118 @@ class UIBuilder:
         header_right_layout.addLayout(buttons_layout)
         header_layout.addLayout(header_right_layout, 2)
         
-        return header_frame, mosque_label, hijri_label, time_label, date_label
+        return header_frame, mosque_label, logo_label, hijri_label, time_label, date_label
 
+
+    @staticmethod
+    def create_settings_dialog(config_manager, data_manager, update_callbacks):
+        """Create the settings dialog."""
+        settings_dialog = QWidget()
+        settings_dialog.setWindowTitle("Prayer Times Settings")
+        settings_dialog.setMinimumSize(700, 500)
+        settings_dialog.setStyleSheet(UITheme.settings_dialog_style())
+
+        settings_layout = QVBoxLayout()
+        settings_layout.setContentsMargins(20, 20, 20, 20)
+        settings_layout.setSpacing(20)
+
+        # Title
+        title_label = QLabel("Prayer Times Settings")
+        title_label.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+        settings_layout.addWidget(title_label)
+
+        # Mosque name input
+        mosque_layout = QHBoxLayout()
+        mosque_layout.addWidget(QLabel("Mosque Name:"))
+        mosque_input = QLineEdit(config_manager.get("mosque_name", ""))
+        mosque_layout.addWidget(mosque_input)
+        settings_layout.addLayout(mosque_layout)
+
+        # Add flash message input field
+        flash_message_layout = QHBoxLayout()
+        flash_message_layout.addWidget(QLabel("Flash Message:"))
+        flash_message_input = QLineEdit(config_manager.get("flash_message", ""))
+        flash_message_input.setPlaceholderText("Enter flash message here...")
+        flash_message_layout.addWidget(flash_message_input)
+        settings_layout.addLayout(flash_message_layout)
+
+        # Add button to update the flash message
+        update_flash_button = QPushButton("Update Flash Message")
+        update_flash_button.setStyleSheet(UITheme.primary_button_style())
+        update_flash_button.clicked.connect(lambda: update_callbacks["update_flash"](flash_message_input.text()))
+        settings_layout.addWidget(update_flash_button)
+
+        # Add logo upload button
+        logo_button = QPushButton("Upload Mosque Logo")
+        logo_button.setStyleSheet(UITheme.primary_button_style())
+        logo_button.clicked.connect(update_callbacks["upload_logo"])
+        settings_layout.addWidget(logo_button)
+
+        # Add background image button
+        bg_button = QPushButton("Add Background Image")
+        bg_button.setStyleSheet(UITheme.primary_button_style())
+        bg_button.clicked.connect(update_callbacks["browse_bg"])
+        settings_layout.addWidget(bg_button)
+
+        # CSV upload button
+        csv_button = QPushButton("Upload Prayer Times CSV")
+        csv_button.setStyleSheet(UITheme.primary_button_style())
+        csv_button.clicked.connect(update_callbacks["upload_csv"])
+        settings_layout.addWidget(csv_button)
+
+        # Table to preview uploaded data
+        preview_table = QTableWidget(0, 10)
+        preview_table.setHorizontalHeaderLabels([
+            "Tarikh Miladi", "Tarikh Hijri", "Hari", 
+            "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
+        ])
+        preview_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        settings_layout.addWidget(preview_table)
+
+        # Populate the preview table with current prayer times
+        prayer_times = data_manager.prayer_times
+        if prayer_times:
+            preview_table.setRowCount(len(prayer_times))
+            header_labels = [preview_table.horizontalHeaderItem(i).text() for i in range(preview_table.columnCount())]
+            for row_idx, row in enumerate(prayer_times):
+                for col_idx, col_name in enumerate(header_labels):
+                    item = QTableWidgetItem(row.get(col_name, ""))
+                    preview_table.setItem(row_idx, col_idx, item)
+
+        # Save button
+        save_button = QPushButton("Save Settings")
+        save_button.setStyleSheet(UITheme.success_button_style())
+        save_button.clicked.connect(lambda: update_callbacks["save_settings"](mosque_input.text(), flash_message_input.text()))
+        settings_layout.addWidget(save_button)
+
+        # Add save CSV button
+        save_csv_button = QPushButton("Save Prayer Times to CSV")
+        save_csv_button.setStyleSheet(UITheme.primary_button_style())
+        save_csv_button.clicked.connect(update_callbacks["save_csv"])
+        settings_layout.addWidget(save_csv_button)
+
+        # Add test alert buttons
+        test_alert_layout = QHBoxLayout()
+        
+        test_reminder_button = QPushButton("Test Reminder Alert")
+        test_reminder_button.setStyleSheet(UITheme.primary_button_style())
+        test_reminder_button.clicked.connect(lambda: update_callbacks["test_alert"]("reminder"))
+        test_alert_layout.addWidget(test_reminder_button)
+        
+        test_azan_button = QPushButton("Test Azan Alert")
+        test_azan_button.setStyleSheet(UITheme.primary_button_style())
+        test_azan_button.clicked.connect(lambda: update_callbacks["test_alert"]("azan"))
+        test_alert_layout.addWidget(test_azan_button)
+        
+        test_iqamah_button = QPushButton("Test Iqamah Alert")
+        test_iqamah_button.setStyleSheet(UITheme.primary_button_style())
+        test_iqamah_button.clicked.connect(lambda: update_callbacks["test_alert"]("iqamah"))
+        test_alert_layout.addWidget(test_iqamah_button)
+        
+        settings_layout.addLayout(test_alert_layout)
+
+        settings_dialog.setLayout(settings_layout)
+        return settings_dialog, preview_table, mosque_input, flash_message_input
     
     @staticmethod
     def create_flash_message_bar(flash_message):
@@ -1224,109 +1363,116 @@ class UIBuilder:
 
 
     
-    @staticmethod
-    def create_settings_dialog(config_manager, data_manager, update_callbacks):
-        """Create the settings dialog."""
-        settings_dialog = QWidget()
-        settings_dialog.setWindowTitle("Prayer Times Settings")
-        settings_dialog.setMinimumSize(700, 500)
-        settings_dialog.setStyleSheet(UITheme.settings_dialog_style())
+@staticmethod
+def create_settings_dialog(config_manager, data_manager, update_callbacks):
+    """Create the settings dialog."""
+    settings_dialog = QWidget()
+    settings_dialog.setWindowTitle("Prayer Times Settings")
+    settings_dialog.setMinimumSize(700, 500)
+    settings_dialog.setStyleSheet(UITheme.settings_dialog_style())
 
-        settings_layout = QVBoxLayout()
-        settings_layout.setContentsMargins(20, 20, 20, 20)
-        settings_layout.setSpacing(20)
+    settings_layout = QVBoxLayout()
+    settings_layout.setContentsMargins(20, 20, 20, 20)
+    settings_layout.setSpacing(20)
 
-        # Title
-        title_label = QLabel("Prayer Times Settings")
-        title_label.setFont(QFont("Arial", 24, QFont.Weight.Bold))
-        settings_layout.addWidget(title_label)
+    # Title
+    title_label = QLabel("Prayer Times Settings")
+    title_label.setFont(QFont("Arial", 24, QFont.Weight.Bold))
+    settings_layout.addWidget(title_label)
 
-        # Mosque name input
-        mosque_layout = QHBoxLayout()
-        mosque_layout.addWidget(QLabel("Mosque Name:"))
-        mosque_input = QLineEdit(config_manager.get("mosque_name", ""))
-        mosque_layout.addWidget(mosque_input)
-        settings_layout.addLayout(mosque_layout)
+    # Mosque name input
+    mosque_layout = QHBoxLayout()
+    mosque_layout.addWidget(QLabel("Mosque Name:"))
+    mosque_input = QLineEdit(config_manager.get("mosque_name", ""))
+    mosque_layout.addWidget(mosque_input)
+    settings_layout.addLayout(mosque_layout)
 
-        # Add flash message input field
-        flash_message_layout = QHBoxLayout()
-        flash_message_layout.addWidget(QLabel("Flash Message:"))
-        flash_message_input = QLineEdit(config_manager.get("flash_message", ""))
-        flash_message_input.setPlaceholderText("Enter flash message here...")
-        flash_message_layout.addWidget(flash_message_input)
-        settings_layout.addLayout(flash_message_layout)
+    # Add flash message input field
+    flash_message_layout = QHBoxLayout()
+    flash_message_layout.addWidget(QLabel("Flash Message:"))
+    flash_message_input = QLineEdit(config_manager.get("flash_message", ""))
+    flash_message_input.setPlaceholderText("Enter flash message here...")
+    flash_message_layout.addWidget(flash_message_input)
+    settings_layout.addLayout(flash_message_layout)
 
-        # Add button to update the flash message
-        update_flash_button = QPushButton("Update Flash Message")
-        update_flash_button.setStyleSheet(UITheme.primary_button_style())
-        update_flash_button.clicked.connect(lambda: update_callbacks["update_flash"](flash_message_input.text()))
-        settings_layout.addWidget(update_flash_button)
+    # Add button to update the flash message
+    update_flash_button = QPushButton("Update Flash Message")
+    update_flash_button.setStyleSheet(UITheme.primary_button_style())
+    update_flash_button.clicked.connect(lambda: update_callbacks["update_flash"](flash_message_input.text()))
+    settings_layout.addWidget(update_flash_button)
 
-        # Add background image button
-        bg_button = QPushButton("Add Background Image")
-        bg_button.setStyleSheet(UITheme.primary_button_style())
-        bg_button.clicked.connect(update_callbacks["browse_bg"])
-        settings_layout.addWidget(bg_button)
+    # Add logo upload button
+    logo_button = QPushButton("Upload Mosque Logo")
+    logo_button.setStyleSheet(UITheme.primary_button_style())
+    logo_button.clicked.connect(update_callbacks["upload_logo"])
+    settings_layout.addWidget(logo_button)
 
-        # CSV upload button
-        csv_button = QPushButton("Upload Prayer Times CSV")
-        csv_button.setStyleSheet(UITheme.primary_button_style())
-        csv_button.clicked.connect(update_callbacks["upload_csv"])
-        settings_layout.addWidget(csv_button)
+    # Add background image button
+    bg_button = QPushButton("Add Background Image")
+    bg_button.setStyleSheet(UITheme.primary_button_style())
+    bg_button.clicked.connect(update_callbacks["browse_bg"])
+    settings_layout.addWidget(bg_button)
 
-        # Table to preview uploaded data
-        preview_table = QTableWidget(0, 10)
-        preview_table.setHorizontalHeaderLabels([
-            "Tarikh Miladi", "Tarikh Hijri", "Hari", 
-            "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
-        ])
-        preview_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        settings_layout.addWidget(preview_table)
+    # CSV upload button
+    csv_button = QPushButton("Upload Prayer Times CSV")
+    csv_button.setStyleSheet(UITheme.primary_button_style())
+    csv_button.clicked.connect(update_callbacks["upload_csv"])
+    settings_layout.addWidget(csv_button)
 
-        # Populate the preview table with current prayer times
-        prayer_times = data_manager.prayer_times
-        if prayer_times:
-            preview_table.setRowCount(len(prayer_times))
-            header_labels = [preview_table.horizontalHeaderItem(i).text() for i in range(preview_table.columnCount())]
-            for row_idx, row in enumerate(prayer_times):
-                for col_idx, col_name in enumerate(header_labels):
-                    item = QTableWidgetItem(row.get(col_name, ""))
-                    preview_table.setItem(row_idx, col_idx, item)
+    # Table to preview uploaded data
+    preview_table = QTableWidget(0, 10)
+    preview_table.setHorizontalHeaderLabels([
+        "Tarikh Miladi", "Tarikh Hijri", "Hari", 
+        "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
+    ])
+    preview_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+    settings_layout.addWidget(preview_table)
 
-        # Save button
-        save_button = QPushButton("Save Settings")
-        save_button.setStyleSheet(UITheme.success_button_style())
-        save_button.clicked.connect(lambda: update_callbacks["save_settings"](mosque_input.text(), flash_message_input.text()))
-        settings_layout.addWidget(save_button)
+    # Populate the preview table with current prayer times
+    prayer_times = data_manager.prayer_times
+    if prayer_times:
+        preview_table.setRowCount(len(prayer_times))
+        header_labels = [preview_table.horizontalHeaderItem(i).text() for i in range(preview_table.columnCount())]
+        for row_idx, row in enumerate(prayer_times):
+            for col_idx, col_name in enumerate(header_labels):
+                item = QTableWidgetItem(row.get(col_name, ""))
+                preview_table.setItem(row_idx, col_idx, item)
 
-        # Add save CSV button
-        save_csv_button = QPushButton("Save Prayer Times to CSV")
-        save_csv_button.setStyleSheet(UITheme.primary_button_style())
-        save_csv_button.clicked.connect(update_callbacks["save_csv"])
-        settings_layout.addWidget(save_csv_button)
+    # Save button
+    save_button = QPushButton("Save Settings")
+    save_button.setStyleSheet(UITheme.success_button_style())
+    save_button.clicked.connect(lambda: update_callbacks["save_settings"](mosque_input.text(), flash_message_input.text()))
+    settings_layout.addWidget(save_button)
 
-        # Add test alert buttons
-        test_alert_layout = QHBoxLayout()
-        
-        test_reminder_button = QPushButton("Test Reminder Alert")
-        test_reminder_button.setStyleSheet(UITheme.primary_button_style())
-        test_reminder_button.clicked.connect(lambda: update_callbacks["test_alert"]("reminder"))
-        test_alert_layout.addWidget(test_reminder_button)
-        
-        test_azan_button = QPushButton("Test Azan Alert")
-        test_azan_button.setStyleSheet(UITheme.primary_button_style())
-        test_azan_button.clicked.connect(lambda: update_callbacks["test_alert"]("azan"))
-        test_alert_layout.addWidget(test_azan_button)
-        
-        test_iqamah_button = QPushButton("Test Iqamah Alert")
-        test_iqamah_button.setStyleSheet(UITheme.primary_button_style())
-        test_iqamah_button.clicked.connect(lambda: update_callbacks["test_alert"]("iqamah"))
-        test_alert_layout.addWidget(test_iqamah_button)
-        
-        settings_layout.addLayout(test_alert_layout)
+    # Add save CSV button
+    save_csv_button = QPushButton("Save Prayer Times to CSV")
+    save_csv_button.setStyleSheet(UITheme.primary_button_style())
+    save_csv_button.clicked.connect(update_callbacks["save_csv"])
+    settings_layout.addWidget(save_csv_button)
 
-        settings_dialog.setLayout(settings_layout)
-        return settings_dialog, preview_table, mosque_input, flash_message_input
+    # Add test alert buttons
+    test_alert_layout = QHBoxLayout()
+    
+    test_reminder_button = QPushButton("Test Reminder Alert")
+    test_reminder_button.setStyleSheet(UITheme.primary_button_style())
+    test_reminder_button.clicked.connect(lambda: update_callbacks["test_alert"]("reminder"))
+    test_alert_layout.addWidget(test_reminder_button)
+    
+    test_azan_button = QPushButton("Test Azan Alert")
+    test_azan_button.setStyleSheet(UITheme.primary_button_style())
+    test_azan_button.clicked.connect(lambda: update_callbacks["test_alert"]("azan"))
+    test_alert_layout.addWidget(test_azan_button)
+    
+    test_iqamah_button = QPushButton("Test Iqamah Alert")
+    test_iqamah_button.setStyleSheet(UITheme.primary_button_style())
+    test_iqamah_button.clicked.connect(lambda: update_callbacks["test_alert"]("iqamah"))
+    test_alert_layout.addWidget(test_iqamah_button)
+    
+    settings_layout.addLayout(test_alert_layout)
+
+    settings_dialog.setLayout(settings_layout)
+    return settings_dialog, preview_table, mosque_input, flash_message_input
+
 
 # UI Manager
 class PrayerTimesUI(QMainWindow):
@@ -1421,12 +1567,15 @@ class PrayerTimesUI(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
         
-        # Create header section 
-        header_frame, self.mosque_label, self.hijri_label, self.time_label, self.date_label = UIBuilder.create_header(
+        # Create header section with logo
+        header_frame, self.mosque_label, self.logo_label, self.hijri_label, self.time_label, self.date_label = UIBuilder.create_header(
             self.config_manager.get("mosque_name", "Mosque Name"),
             self.open_settings
         )
         main_layout.addWidget(header_frame)
+        
+        # Load logo if available
+        self.load_logo()
         
         # Create flash message bar
         flash_container, self.flash_message_label = UIBuilder.create_flash_message_bar(
@@ -1451,6 +1600,33 @@ class PrayerTimesUI(QMainWindow):
         
         # Initialize the clock
         self.update_time()
+
+
+    def load_logo(self):
+        """Load the mosque logo from the configured path"""
+        logo_path = self.config_manager.get("logo_path", "")
+        if logo_path and os.path.exists(logo_path):
+            try:
+                pixmap = QPixmap(logo_path)
+                if not pixmap.isNull():
+                    # Scale the logo to fit the label while maintaining aspect ratio
+                    scaled_pixmap = pixmap.scaled(
+                        80, 80,  # Match the fixed size of the label
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+                    
+                    # Set the pixmap
+                    self.logo_label.setPixmap(scaled_pixmap)
+                    logger.info(f"Logo loaded successfully from {logo_path}")
+                else:
+                    logger.warning(f"Failed to load logo from {logo_path}")
+            except Exception as e:
+                logger.error(f"Error loading logo: {str(e)}")
+
+
+
+
     
     def minimize_window(self):
         """Minimize the application window."""
@@ -1528,6 +1704,7 @@ class PrayerTimesUI(QMainWindow):
         update_callbacks = {
             "update_flash": self.update_flash_message,
             "browse_bg": self.browse_background_image,
+            "upload_logo": self.upload_logo,  # Add this line
             "upload_csv": self.upload_csv,
             "save_settings": self.save_settings,
             "save_csv": self.save_csv,
@@ -1542,6 +1719,48 @@ class PrayerTimesUI(QMainWindow):
         )
         
         self.settings_dialog.show()
+
+
+    def upload_logo(self):
+        """Open a file dialog to select a logo image and save it to the configuration."""
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getOpenFileName(
+            self, "Select Mosque Logo", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.svg)"
+        )
+        
+        if file_path:
+            logger.info(f"Selected logo image: {file_path}")
+            
+            # Verify the file exists and is readable
+            if not os.path.exists(file_path):
+                logger.error(f"Selected file does not exist: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", "Selected file does not exist.")
+                return
+                
+            if not os.access(file_path, os.R_OK):
+                logger.error(f"Selected file is not readable: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", "Selected file is not readable.")
+                return
+            
+            # Test loading the image with QPixmap
+            test_pixmap = QPixmap(file_path)
+            if test_pixmap.isNull():
+                logger.error(f"Failed to load logo as pixmap: {file_path}")
+                QMessageBox.critical(self.settings_dialog, "Error", 
+                                "Failed to load the selected logo. The file may be corrupted or in an unsupported format.")
+                return
+                
+            logger.info(f"Successfully loaded logo: {file_path}, size: {test_pixmap.width()}x{test_pixmap.height()}")
+            
+            # Save the logo path to configuration
+            self.config_manager.set("logo_path", file_path)
+            
+            # Update the logo display
+            self.load_logo()
+            
+            QMessageBox.information(self.settings_dialog, "Success", "Mosque logo updated successfully.")
+
+
     
     def upload_csv(self):
         """Upload prayer times from a CSV file and save them locally."""
@@ -1604,6 +1823,8 @@ class PrayerTimesUI(QMainWindow):
             self.config_manager.set("flash_message", flash_message)
             self.update_flash_message(flash_message)
         
+        # Make sure logo is preserved (already saved in upload_logo method)
+        
         # Update display with today's prayer times
         self.update_prayer_display()
         
@@ -1611,6 +1832,7 @@ class PrayerTimesUI(QMainWindow):
         self.settings_dialog.close()
         
         QMessageBox.information(self, "Success", "Settings saved successfully.")
+
     
     def update_time(self):
         """Update the time display and check for prayer time alerts."""
@@ -1983,11 +2205,7 @@ class PrayerTimesUI(QMainWindow):
             
         except Exception as e:
             logger.error(f"Error updating background pixmap: {str(e)}", exc_info=True)
-
-
-
-
-    
+   
     def save_csv(self):
         """Save the current prayer times to a CSV file selected by the user."""
         prayer_times = self.data_manager.prayer_times
