@@ -608,6 +608,7 @@ class TimeUtils:
         return f"{day_malay}, {rest}"
 
 
+# Fix for the IntegratedAlert class
 class IntegratedAlert:
     def __init__(self, parent_ui):
         self.parent = parent_ui
@@ -648,6 +649,9 @@ class IntegratedAlert:
             return f"{seconds} seconds"
     
     def show_alert(self, message, duration=10, alert_type="reminder"):
+        # Log alert creation
+        logger.info(f"Creating {alert_type} alert with message: {message}, duration: {duration} seconds")
+        
         # Remove existing alert if any
         self.hide_alert()
         
@@ -661,7 +665,7 @@ class IntegratedAlert:
         self.alert_frame = QFrame(self.parent)
         self.alert_frame.setObjectName("alertFrame")
         
-        # Set background color based on alert type
+        # Set background color and duration based on alert type
         if alert_type == "prayer_time":
             # Special handling for prayer time alert
             bg_color = "rgba(0, 0, 0, 0.95)"  # Almost black background
@@ -670,12 +674,15 @@ class IntegratedAlert:
         elif alert_type == "azan":
             bg_color = UITheme.ALERT_AZAN
             if self.audio_manager: self.audio_manager.play_sound("azan_start")
+            duration = 3 * 60  # 3 minutes
         elif alert_type == "iqamah":
             bg_color = UITheme.ALERT_IQAMAH
             if self.audio_manager: self.audio_manager.play_sound("notification")
-        else:
+            duration = 10 * 60  # 10 minutes
+        else:  # reminder
             bg_color = UITheme.ALERT_REMINDER
             if self.audio_manager: self.audio_manager.play_sound("notification")
+            duration = 30  # 30 seconds
             
         # Enhanced styling with animation preparation
         self.alert_frame.setStyleSheet(f"""
@@ -840,6 +847,9 @@ class IntegratedAlert:
         # Start countdown
         self.remaining_time = duration
         self.timer.start(1000)  # Update every second
+        
+        # Log alert display
+        logger.info(f"Alert shown: {message} ({alert_type}), duration: {duration} seconds")
     
     def update_clock(self):
         """Update the digital clock display"""
@@ -848,6 +858,12 @@ class IntegratedAlert:
             self.clock_label.setText(current_time)
     
     def update_countdown(self):
+        """Update the countdown timer and close alert when time is up"""
+        if self.remaining_time <= 0:
+            logger.info(f"Countdown finished for {self.alert_type} alert. Closing automatically.")
+            self.hide_alert()
+            return
+            
         self.remaining_time -= 1
         if self.countdown_label:
             formatted_time = self.format_time(self.remaining_time)
@@ -871,12 +887,11 @@ class IntegratedAlert:
                     elif self.alert_type == "prayer_time":
                         self.audio_manager.play_sound("reminder_end")
                         logger.info("Playing prayer time end sound")
-        
-        if self.remaining_time <= 0:
-            self.hide_alert()
     
     def hide_alert(self):
+        """Hide the alert with fade-out animation"""
         if self.alert_frame:
+            # Stop the timers
             self.timer.stop()
             
             # Stop the clock update timer if it's running
@@ -885,26 +900,35 @@ class IntegratedAlert:
             
             # Create fade out animation
             opacity_effect = self.alert_frame.graphicsEffect()
-            fade_out = QPropertyAnimation(opacity_effect, b"opacity")
-            fade_out.setDuration(500)
-            fade_out.setStartValue(1)
-            fade_out.setEndValue(0)
-            fade_out.setEasingCurve(QEasingCurve.Type.OutCubic)
-            
-            # Connect the finished signal to delete the alert frame
-            fade_out.finished.connect(lambda: self.delete_alert_frame())
-            fade_out.start()
+            if opacity_effect:
+                fade_out = QPropertyAnimation(opacity_effect, b"opacity")
+                fade_out.setDuration(500)
+                fade_out.setStartValue(1)
+                fade_out.setEndValue(0)
+                fade_out.setEasingCurve(QEasingCurve.Type.OutCubic)
+                
+                # Connect the finished signal to delete the alert frame
+                fade_out.finished.connect(self.delete_alert_frame)
+                fade_out.start()
+                
+                # Keep a reference to prevent garbage collection
+                self.fade_out_animation = fade_out
+            else:
+                # If no opacity effect, delete immediately
+                self.delete_alert_frame()
             
             # Stop any playing sounds if audio manager exists
             if hasattr(self, 'audio_manager') and self.audio_manager:
                 self.audio_manager.stop_sound()
+            
+            logger.info("Alert hidden")
     
     def delete_alert_frame(self):
         """Delete the alert frame after animation completes"""
         if self.alert_frame:
             self.alert_frame.deleteLater()
             self.alert_frame = None
-
+            logger.info("Alert frame deleted")
 
 
 # Alert Manager
@@ -920,6 +944,7 @@ class AlertManager:
         self.integrated_alert = IntegratedAlert(parent_widget)
     
     # Modify the AlertManager.check_alerts method
+# Fix for the AlertManager.check_alerts method
     def check_alerts(self, current_datetime):
         """Check and display prayer time alerts."""
         prayer_times = self.data_manager.prayer_times
@@ -936,26 +961,9 @@ class AlertManager:
         prayer_names = ["Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"]
         azan_prayer_names = ["Subuh", "Zohor", "Asar", "Maghrib", "Isyak"]
 
-        # If an alert is already active, determine if it should be overridden.
-        if self.alert_active and self.current_alert:
-            parts = self.current_alert.split('_')
-            if len(parts) >= 2:
-                current_prayer, current_alert_type = parts[0], parts[1]
-                # If a higher-priority azan window has arrived (i.e. diff in -30 to 30)
-                # then allow overriding the current reminder alert.
-                time_str = today_prayers.get(current_prayer, "")
-                time_24h = TimeUtils.convert_12h_to_24h(time_str)
-                if time_24h:
-                    hour, minute = map(int, time_24h.split(':'))
-                    prayer_time = datetime.time(hour, minute)
-                    prayer_datetime = datetime.datetime.combine(current_datetime.date(), prayer_time)
-                    diff_seconds = (prayer_datetime - current_datetime).total_seconds()
-                    if -30 <= diff_seconds <= 30 and current_alert_type != "azan":
-                        self.hide_alert()
-                    else:
-                        return  # Otherwise, do not proceed if an alert is active.
-            else:
-                return
+        # If an alert is already active, don't show another one
+        if self.alert_active and self.integrated_alert.alert_frame:
+            return
 
         # Loop through each prayer to determine if an alert should trigger.
         for prayer in prayer_names:
@@ -972,7 +980,8 @@ class AlertManager:
 
                     # Special handling for Syuruk - only a reminder is needed.
                     if prayer == "Syuruk":
-                        if 270 <= diff_seconds <= 330:
+                        # 5 minutes before Syuruk (widen the window to 2 minutes)
+                        if 240 <= diff_seconds <= 360:  # 4-6 minutes before
                             alert_key = f"{prayer}_5min"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -981,19 +990,22 @@ class AlertManager:
                                 self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder", duration=28*60)
                             return
 
-
                     # Special handling for Imsak - only a reminder is needed.
                     elif prayer == "Imsak":
-                        if 270 <= diff_seconds <= 330:
-                            self.alert_active = True
-                            self.current_alert = f"{prayer}_5min"
-                            self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder")
+                        # 5 minutes before Imsak (widen the window to 2 minutes)
+                        if 240 <= diff_seconds <= 360:  # 4-6 minutes before
+                            alert_key = f"{prayer}_5min"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"{prayer.upper()} 5 minit lagi", "reminder")
                             return
 
-                   # For prayers with azan alerts.
+                    # For prayers with azan alerts.
                     elif prayer in azan_prayer_names:
-                        # 10 minutes before prayer time.
-                        if 570 <= diff_seconds <= 630:
+                        # 10 minutes before prayer time (widen the window to 2 minutes)
+                        if 540 <= diff_seconds <= 660:  # 9-11 minutes before
                             alert_key = f"{prayer}_10min"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1002,8 +1014,8 @@ class AlertManager:
                                 self.show_alert(f"Solat {prayer.upper()} 10 minit lagi", "reminder")
                             return
 
-                        # 5 minutes before prayer time.
-                        elif 270 <= diff_seconds <= 330:
+                        # 5 minutes before prayer time (widen the window to 2 minutes)
+                        elif 240 <= diff_seconds <= 360:  # 4-6 minutes before
                             alert_key = f"{prayer}_5min"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1012,8 +1024,8 @@ class AlertManager:
                                 self.show_alert(f"Solat {prayer.upper()} 5 minit lagi", "reminder")
                             return
 
-                        # At prayer time: azan alert.
-                        elif -1 <= diff_seconds <= 1:
+                        # At prayer time: azan alert (widen the window to 30 seconds)
+                        elif -30 <= diff_seconds <= 30:  # 30 seconds before to 30 seconds after
                             alert_key = f"{prayer}_azan"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1022,8 +1034,8 @@ class AlertManager:
                                 self.show_alert(f"Azan {prayer.upper()}", "azan")
                             return
 
-                        # 10 minutes after prayer time: iqamah alert.
-                        elif -300 <= diff_seconds <= -240:
+                        # 10 minutes after prayer time: iqamah alert (widen the window to 1 minute)
+                        elif -660 <= diff_seconds <= -540:  # 9-11 minutes after
                             alert_key = f"{prayer}_iqamah"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1031,7 +1043,9 @@ class AlertManager:
                                 self.current_alert = alert_key
                                 self.show_alert("IQAMAH", "iqamah")
                             return
-                        elif -1200 <= diff_seconds <= -1140:  # 20 minutes after prayer time (10 min after iqamah)
+                            
+                        # 20 minutes after prayer time: prayer time alert (widen the window to 1 minute)
+                        elif -1260 <= diff_seconds <= -1140:  # 19-21 minutes after
                             alert_key = f"{prayer}_prayer_time"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1042,6 +1056,7 @@ class AlertManager:
 
                 except (ValueError, AttributeError) as e:
                     logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
+
 
     
     def show_alert(self, message, alert_type, duration=None):
@@ -1070,12 +1085,14 @@ class AlertManager:
         logger.info(f"Alert shown: {message} ({alert_type}), duration: {duration} seconds")
 
     
+ # In the AlertManager class, update the hide_alert method:
     def hide_alert(self):
         """Hide the current alert."""
         self.integrated_alert.hide_alert()
         self.alert_active = False
         self.current_alert = None
-        logger.info("Alert hidden")
+        logger.info("Alert state reset in AlertManager")
+
     
     def test_alert(self, alert_type="reminder"):
         """Show a test alert."""
