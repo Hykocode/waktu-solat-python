@@ -12,7 +12,12 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHB
                             QGridLayout, QSpacerItem, QSizePolicy, QScrollArea,QDialog)
 from PyQt6.QtCore import QTimer, Qt, QPropertyAnimation, QRect, QEasingCurve, QSequentialAnimationGroup,QUrl
 from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase, QPixmap, QPainter, QBrush
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, 
+                            QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
+                            QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
+                            QGridLayout, QSpacerItem, QSizePolicy, QScrollArea, QDialog, QGraphicsOpacityEffect)
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
+
 
 # Set up logging
 logging.basicConfig(
@@ -446,13 +451,13 @@ class PrayerTimesDataManager:
             "Tarikh Miladi": today_str,
             "Tarikh Hijri": hijri_date,
             "Hari": day_name,
-            "Imsak": "05:30 AM",
-            "Subuh": "05:45 AM",
-            "Syuruk": "07:00 AM",
-            "Zohor": "01:00 PM",
-            "Asar": "04:15 PM",
-            "Maghrib": "07:15 PM",
-            "Isyak": "08:30 PM"
+            "Imsak": "N/A",
+            "Subuh":"N/A",
+            "Syuruk": "N/A",
+            "Zohor": "N/A",
+            "Asar": "N/A",
+            "Maghrib": "N/A",
+            "Isyak": "N/A"
         }]
     
     def load_prayer_times(self):
@@ -603,7 +608,6 @@ class TimeUtils:
         return f"{day_malay}, {rest}"
 
 
-# Integrated Alert
 class IntegratedAlert:
     def __init__(self, parent_ui):
         self.parent = parent_ui
@@ -612,6 +616,9 @@ class IntegratedAlert:
         self.timer.timeout.connect(self.update_countdown)
         self.remaining_time = 0
         self.countdown_label = None
+        self.clock_label = None
+        self.update_clock_timer = QTimer()
+        self.update_clock_timer.timeout.connect(self.update_clock)
         
         # Initialize alert_type attribute
         self.alert_type = None
@@ -619,7 +626,8 @@ class IntegratedAlert:
         # Sound notification thresholds (in seconds)
         self.sound_thresholds = {
             "reminder": 5,  # Play sound when 5 seconds remaining for reminders
-            "iqamah": 30    # Play sound when 30 seconds remaining for iqamah
+            "iqamah": 30,   # Play sound when 30 seconds remaining for iqamah
+            "prayer_time": 60  # Play sound when 60 seconds remaining for prayer time
         }
         
         # Track if end sound has been played
@@ -654,7 +662,12 @@ class IntegratedAlert:
         self.alert_frame.setObjectName("alertFrame")
         
         # Set background color based on alert type
-        if alert_type == "azan":
+        if alert_type == "prayer_time":
+            # Special handling for prayer time alert
+            bg_color = "rgba(0, 0, 0, 0.95)"  # Almost black background
+            if self.audio_manager: self.audio_manager.play_sound("notification")
+            duration = 15 * 60  # 15 minutes
+        elif alert_type == "azan":
             bg_color = UITheme.ALERT_AZAN
             if self.audio_manager: self.audio_manager.play_sound("azan_start")
         elif alert_type == "iqamah":
@@ -663,13 +676,13 @@ class IntegratedAlert:
         else:
             bg_color = UITheme.ALERT_REMINDER
             if self.audio_manager: self.audio_manager.play_sound("notification")
-
             
+        # Enhanced styling with animation preparation
         self.alert_frame.setStyleSheet(f"""
             QFrame#alertFrame {{
                 background-color: {bg_color};
-                border: 2px solid white;
-                border-radius: 15px;
+                border: 3px solid white;
+                border-radius: 20px;
             }}
         """)
         
@@ -677,53 +690,162 @@ class IntegratedAlert:
         layout = QVBoxLayout(self.alert_frame)
         layout.setContentsMargins(40, 40, 40, 40)
         
-        layout.addStretch(1)
+        # Different layout for prayer time alert
+        if alert_type == "prayer_time":
+            # Add title at the top
+            title_label = QLabel("PRAYER TIME")
+            title_label.setFont(FontManager.get_main_font(36, QFont.Weight.Bold))
+            title_label.setStyleSheet("color: white; margin-bottom: 20px;")
+            title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(title_label)
+            
+            # Add prayer name
+            prayer_name = message.replace("PRAYER TIME - ", "")
+            prayer_label = QLabel(prayer_name)
+            prayer_label.setFont(FontManager.get_main_font(28, QFont.Weight.Bold))
+            prayer_label.setStyleSheet("color: white; margin-bottom: 30px;")
+            prayer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(prayer_label)
+            
+            # Add digital clock
+            self.clock_label = QLabel()
+            self.clock_label.setFont(FontManager.get_main_font(72, QFont.Weight.Bold))
+            self.clock_label.setStyleSheet("color: white;")
+            self.clock_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(self.clock_label)
+            
+            # Update clock immediately and start timer
+            self.update_clock()
+            self.update_clock_timer.start(1000)  # Update every second
+            
+            # Add spacer to push content to center
+            layout.addStretch(1)
+            
+            # Add countdown at the bottom
+            formatted_time = self.format_time(duration)
+            self.countdown_label = QLabel(f"Closing in {formatted_time}")
+            self.countdown_label.setFont(FontManager.get_main_font(18))
+            self.countdown_label.setStyleSheet("color: rgba(255, 255, 255, 0.7);")
+            self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(self.countdown_label)
+            
+            # Close button
+            close_button = QPushButton("Dismiss")
+            close_button.setFont(FontManager.get_main_font(16))
+            close_button.setStyleSheet("""
+                QPushButton {
+                    background-color: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 2px solid white;
+                    border-radius: 15px;
+                    padding: 10px 20px;
+                    margin-top: 10px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(255, 255, 255, 0.3);
+                }
+                QPushButton:pressed {
+                    background-color: rgba(255, 255, 255, 0.4);
+                }
+            """)
+            close_button.setFixedWidth(200)
+            close_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            close_button.clicked.connect(self.hide_alert)
+            layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
+        else:
+            # Standard alert layout
+            layout.addStretch(1)
 
-        # Alert message
-        alert_label = QLabel(message)
-        alert_label.setFont(QFont("Arial", 48, QFont.Weight.Bold))
-        alert_label.setStyleSheet("color: white;")
-        alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(alert_label)
-        
-        # Countdown label
-        formatted_time = self.format_time(duration)
-        self.countdown_label = QLabel(f"Closing in {formatted_time}")
-        self.countdown_label.setFont(QFont("Arial", 24))
-        self.countdown_label.setStyleSheet("color: white;")
-        self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.countdown_label)
-        
-        # Close button
-        close_button = QPushButton("Dismiss")
-        close_button.setFont(QFont("Arial", 16))
-        close_button.setStyleSheet("""
-            QPushButton {
-                background-color: white;
-                color: black;
-                border: none;
-                border-radius: 10px;
-                padding: 10px 20px;
-            }
-            QPushButton:hover {
-                background-color: #f0f0f0;
-            }
-        """)
-        close_button.setFixedWidth(200)
-        close_button.clicked.connect(self.hide_alert)
-        layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
-        
-        layout.addStretch(1)
+            # Alert icon based on type
+            icon_label = QLabel()
+            icon_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            icon_label.setFixedHeight(80)
+            
+            # Set icon based on alert type
+            icon_path = ""
+            if alert_type == "azan":
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "azan_icon.png")
+            elif alert_type == "iqamah":
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "iqamah_icon.png")
+            else:
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "reminder_icon.png")
+            
+            # Try to load the icon
+            if os.path.exists(icon_path):
+                pixmap = QPixmap(icon_path)
+                if not pixmap.isNull():
+                    icon_label.setPixmap(pixmap.scaled(80, 80, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                    layout.addWidget(icon_label)
+            
+            # Alert message with enhanced styling
+            alert_label = QLabel(message)
+            alert_label.setFont(FontManager.get_main_font(48, QFont.Weight.Bold))
+            alert_label.setStyleSheet("color: white; margin: 20px 0;")
+            alert_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(alert_label)
+            
+            # Countdown label with enhanced styling
+            formatted_time = self.format_time(duration)
+            self.countdown_label = QLabel(f"Closing in {formatted_time}")
+            self.countdown_label.setFont(FontManager.get_main_font(24))
+            self.countdown_label.setStyleSheet("color: rgba(255, 255, 255, 0.8);")
+            self.countdown_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(self.countdown_label)
+            
+            # Close button with enhanced styling
+            close_button = QPushButton("Dismiss")
+            close_button.setFont(FontManager.get_main_font(16))
+            close_button.setStyleSheet("""
+                QPushButton {
+                    background-color: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 2px solid white;
+                    border-radius: 15px;
+                    padding: 10px 20px;
+                    margin-top: 20px;
+                }
+                QPushButton:hover {
+                    background-color: rgba(255, 255, 255, 0.3);
+                }
+                QPushButton:pressed {
+                    background-color: rgba(255, 255, 255, 0.4);
+                }
+            """)
+            close_button.setFixedWidth(200)
+            close_button.setCursor(Qt.CursorShape.PointingHandCursor)
+            close_button.clicked.connect(self.hide_alert)
+            layout.addWidget(close_button, alignment=Qt.AlignmentFlag.AlignCenter)
+            
+            layout.addStretch(1)
 
         # Position the alert in the center of the parent
         self.alert_frame.setGeometry(0, 0, self.parent.width(), self.parent.height())
         
+        # Create opacity effect for animation
+        opacity_effect = QGraphicsOpacityEffect()
+        opacity_effect.setOpacity(0)
+        self.alert_frame.setGraphicsEffect(opacity_effect)
+        
         # Show the alert
         self.alert_frame.show()
+        
+        # Animate the alert appearance
+        self.fade_in_animation = QPropertyAnimation(opacity_effect, b"opacity")
+        self.fade_in_animation.setDuration(500)
+        self.fade_in_animation.setStartValue(0)
+        self.fade_in_animation.setEndValue(1)
+        self.fade_in_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
+        self.fade_in_animation.start()
         
         # Start countdown
         self.remaining_time = duration
         self.timer.start(1000)  # Update every second
+    
+    def update_clock(self):
+        """Update the digital clock display"""
+        if self.clock_label:
+            current_time = datetime.datetime.now().strftime("%I:%M:%S %p")
+            self.clock_label.setText(current_time)
     
     def update_countdown(self):
         self.remaining_time -= 1
@@ -746,6 +868,9 @@ class IntegratedAlert:
                     elif self.alert_type == "reminder":
                         self.audio_manager.play_sound("reminder_end")
                         logger.info("Playing reminder end sound")
+                    elif self.alert_type == "prayer_time":
+                        self.audio_manager.play_sound("reminder_end")
+                        logger.info("Playing prayer time end sound")
         
         if self.remaining_time <= 0:
             self.hide_alert()
@@ -753,12 +878,33 @@ class IntegratedAlert:
     def hide_alert(self):
         if self.alert_frame:
             self.timer.stop()
-            self.alert_frame.deleteLater()
-            self.alert_frame = None
+            
+            # Stop the clock update timer if it's running
+            if self.update_clock_timer.isActive():
+                self.update_clock_timer.stop()
+            
+            # Create fade out animation
+            opacity_effect = self.alert_frame.graphicsEffect()
+            fade_out = QPropertyAnimation(opacity_effect, b"opacity")
+            fade_out.setDuration(500)
+            fade_out.setStartValue(1)
+            fade_out.setEndValue(0)
+            fade_out.setEasingCurve(QEasingCurve.Type.OutCubic)
+            
+            # Connect the finished signal to delete the alert frame
+            fade_out.finished.connect(lambda: self.delete_alert_frame())
+            fade_out.start()
             
             # Stop any playing sounds if audio manager exists
             if hasattr(self, 'audio_manager') and self.audio_manager:
                 self.audio_manager.stop_sound()
+    
+    def delete_alert_frame(self):
+        """Delete the alert frame after animation completes"""
+        if self.alert_frame:
+            self.alert_frame.deleteLater()
+            self.alert_frame = None
+
 
 
 # Alert Manager
@@ -885,7 +1031,14 @@ class AlertManager:
                                 self.current_alert = alert_key
                                 self.show_alert("IQAMAH", "iqamah")
                             return
-
+                        elif -1200 <= diff_seconds <= -1140:  # 20 minutes after prayer time (10 min after iqamah)
+                            alert_key = f"{prayer}_prayer_time"
+                            if not self.triggered_alerts.get(alert_key):
+                                self.triggered_alerts[alert_key] = True
+                                self.alert_active = True
+                                self.current_alert = alert_key
+                                self.show_alert(f"PRAYER TIME - {prayer.upper()}", "prayer_time")
+                            return
 
                 except (ValueError, AttributeError) as e:
                     logger.error(f"Error processing prayer time alert for {prayer}: {str(e)}")
@@ -930,8 +1083,11 @@ class AlertManager:
             self.show_alert("TEST AZAN ALERT", "azan")
         elif alert_type == "iqamah":
             self.show_alert("TEST IQAMAH ALERT", "iqamah")
+        elif alert_type == "prayer_time":
+            self.show_alert("PRAYER TIME - TEST", "prayer_time")
         else:
             self.show_alert("TEST REMINDER ALERT", "reminder")
+
 
 
 # Marquee Animation Manager
@@ -1121,60 +1277,167 @@ class UIBuilder:
 
     @staticmethod
     def create_settings_dialog(config_manager, data_manager, update_callbacks):
-        """Create the settings dialog."""
+        """Create the settings dialog with organized sections."""
         settings_dialog = QWidget()
         settings_dialog.setWindowTitle("Prayer Times Settings")
-        settings_dialog.setMinimumSize(700, 500)
+        settings_dialog.setMinimumSize(800, 600)
         settings_dialog.setStyleSheet(UITheme.settings_dialog_style())
 
-        settings_layout = QVBoxLayout()
-        settings_layout.setContentsMargins(20, 20, 20, 20)
-        settings_layout.setSpacing(20)
+        # Main layout
+        main_layout = QVBoxLayout(settings_dialog)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
 
         # Title
         title_label = QLabel("Prayer Times Settings")
-        title_label.setFont(QFont("Arial", 24, QFont.Weight.Bold))
-        settings_layout.addWidget(title_label)
+        title_label.setFont(FontManager.get_main_font(24, QFont.Weight.Bold))
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        title_label.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; margin-bottom: 10px;")
+        main_layout.addWidget(title_label)
 
+        # Create a scroll area for the settings content
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setStyleSheet(f"""
+            QScrollArea {{
+                background-color: {UITheme.DARK_BG};
+                border: none;
+            }}
+            QScrollBar:vertical {{
+                background: {UITheme.DARKER_BG};
+                width: 12px;
+                margin: 0px;
+            }}
+            QScrollBar::handle:vertical {{
+                background: {UITheme.LIGHT_BG};
+                min-height: 20px;
+                border-radius: 6px;
+            }}
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+                height: 0px;
+            }}
+        """)
+        
+        # Container widget for scroll area
+        settings_container = QWidget()
+        settings_layout = QVBoxLayout(settings_container)
+        settings_layout.setContentsMargins(5, 5, 5, 5)
+        settings_layout.setSpacing(20)
+        
+        # ===== SECTION 1: Mosque Information =====
+        mosque_group = QFrame()
+        mosque_group.setObjectName("settingsSection")
+        mosque_group.setStyleSheet(f"""
+            QFrame#settingsSection {{
+                background-color: {UITheme.LIGHT_BG};
+                border-radius: {UITheme.BORDER_RADIUS_LARGE}px;
+                padding: 10px;
+            }}
+        """)
+        mosque_layout = QVBoxLayout(mosque_group)
+        
+        # Section title
+        section_title = QLabel("Mosque Information")
+        section_title.setFont(FontManager.get_main_font(UITheme.FONT_MEDIUM, QFont.Weight.Bold))
+        section_title.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; margin-bottom: 10px;")
+        mosque_layout.addWidget(section_title)
+        
         # Mosque name input
-        mosque_layout = QHBoxLayout()
-        mosque_layout.addWidget(QLabel("Mosque Name:"))
+        mosque_name_layout = QHBoxLayout()
+        mosque_name_layout.addWidget(QLabel("Mosque Name:"))
         mosque_input = QLineEdit(config_manager.get("mosque_name", ""))
-        mosque_layout.addWidget(mosque_input)
-        settings_layout.addLayout(mosque_layout)
-
-        # Add flash message input field
+        mosque_input.setPlaceholderText("Enter mosque name...")
+        mosque_name_layout.addWidget(mosque_input)
+        mosque_layout.addLayout(mosque_name_layout)
+        
+        # Logo upload
+        logo_layout = QHBoxLayout()
+        logo_layout.addWidget(QLabel("Mosque Logo:"))
+        logo_button = QPushButton("Upload Logo")
+        logo_button.setStyleSheet(UITheme.primary_button_style())
+        logo_button.clicked.connect(update_callbacks["upload_logo"])
+        logo_layout.addWidget(logo_button)
+        mosque_layout.addLayout(logo_layout)
+        
+        settings_layout.addWidget(mosque_group)
+        
+        # ===== SECTION 2: Display Settings =====
+        display_group = QFrame()
+        display_group.setObjectName("settingsSection")
+        display_group.setStyleSheet(f"""
+            QFrame#settingsSection {{
+                background-color: {UITheme.LIGHT_BG};
+                border-radius: {UITheme.BORDER_RADIUS_LARGE}px;
+                padding: 10px;
+            }}
+        """)
+        display_layout = QVBoxLayout(display_group)
+        
+        # Section title
+        display_title = QLabel("Display Settings")
+        display_title.setFont(FontManager.get_main_font(UITheme.FONT_MEDIUM, QFont.Weight.Bold))
+        display_title.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; margin-bottom: 10px;")
+        display_layout.addWidget(display_title)
+        
+        # Flash message
         flash_message_layout = QHBoxLayout()
         flash_message_layout.addWidget(QLabel("Flash Message:"))
         flash_message_input = QLineEdit(config_manager.get("flash_message", ""))
         flash_message_input.setPlaceholderText("Enter flash message here...")
         flash_message_layout.addWidget(flash_message_input)
-        settings_layout.addLayout(flash_message_layout)
-
-        # Add button to update the flash message
+        display_layout.addLayout(flash_message_layout)
+        
+        # Update flash message button
         update_flash_button = QPushButton("Update Flash Message")
         update_flash_button.setStyleSheet(UITheme.primary_button_style())
         update_flash_button.clicked.connect(lambda: update_callbacks["update_flash"](flash_message_input.text()))
-        settings_layout.addWidget(update_flash_button)
-
-        # Add logo upload button
-        logo_button = QPushButton("Upload Mosque Logo")
-        logo_button.setStyleSheet(UITheme.primary_button_style())
-        logo_button.clicked.connect(update_callbacks["upload_logo"])
-        settings_layout.addWidget(logo_button)
-
-        # Add background image button
-        bg_button = QPushButton("Add Background Image")
+        display_layout.addWidget(update_flash_button)
+        
+        # Background image
+        bg_layout = QHBoxLayout()
+        bg_layout.addWidget(QLabel("Background Image:"))
+        bg_button = QPushButton("Change Background")
         bg_button.setStyleSheet(UITheme.primary_button_style())
         bg_button.clicked.connect(update_callbacks["browse_bg"])
-        settings_layout.addWidget(bg_button)
-
-        # CSV upload button
-        csv_button = QPushButton("Upload Prayer Times CSV")
-        csv_button.setStyleSheet(UITheme.primary_button_style())
-        csv_button.clicked.connect(update_callbacks["upload_csv"])
-        settings_layout.addWidget(csv_button)
-
+        bg_layout.addWidget(bg_button)
+        display_layout.addLayout(bg_layout)
+        
+        settings_layout.addWidget(display_group)
+        
+        # ===== SECTION 3: Prayer Times Data =====
+        prayer_data_group = QFrame()
+        prayer_data_group.setObjectName("settingsSection")
+        prayer_data_group.setStyleSheet(f"""
+            QFrame#settingsSection {{
+                background-color: {UITheme.LIGHT_BG};
+                border-radius: {UITheme.BORDER_RADIUS_LARGE}px;
+                padding: 10px;
+            }}
+        """)
+        prayer_data_layout = QVBoxLayout(prayer_data_group)
+        
+        # Section title
+        prayer_data_title = QLabel("Prayer Times Data")
+        prayer_data_title.setFont(FontManager.get_main_font(UITheme.FONT_MEDIUM, QFont.Weight.Bold))
+        prayer_data_title.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; margin-bottom: 10px;")
+        prayer_data_layout.addWidget(prayer_data_title)
+        
+        # CSV upload/download buttons
+        csv_buttons_layout = QHBoxLayout()
+        
+        csv_upload_button = QPushButton("Upload Prayer Times CSV")
+        csv_upload_button.setStyleSheet(UITheme.primary_button_style())
+        csv_upload_button.clicked.connect(update_callbacks["upload_csv"])
+        csv_buttons_layout.addWidget(csv_upload_button)
+        
+        csv_save_button = QPushButton("Save Prayer Times to CSV")
+        csv_save_button.setStyleSheet(UITheme.primary_button_style())
+        csv_save_button.clicked.connect(update_callbacks["save_csv"])
+        csv_buttons_layout.addWidget(csv_save_button)
+        
+        prayer_data_layout.addLayout(csv_buttons_layout)
+        
         # Table to preview uploaded data
         preview_table = QTableWidget(0, 10)
         preview_table.setHorizontalHeaderLabels([
@@ -1182,8 +1445,9 @@ class UIBuilder:
             "Imsak", "Subuh", "Syuruk", "Zohor", "Asar", "Maghrib", "Isyak"
         ])
         preview_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        settings_layout.addWidget(preview_table)
-
+        preview_table.setMinimumHeight(200)
+        prayer_data_layout.addWidget(preview_table)
+        
         # Populate the preview table with current prayer times
         prayer_times = data_manager.prayer_times
         if prayer_times:
@@ -1193,41 +1457,85 @@ class UIBuilder:
                 for col_idx, col_name in enumerate(header_labels):
                     item = QTableWidgetItem(row.get(col_name, ""))
                     preview_table.setItem(row_idx, col_idx, item)
-
-        # Save button
-        save_button = QPushButton("Save Settings")
-        save_button.setStyleSheet(UITheme.success_button_style())
-        save_button.clicked.connect(lambda: update_callbacks["save_settings"](mosque_input.text(), flash_message_input.text()))
-        settings_layout.addWidget(save_button)
-
-        # Add save CSV button
-        save_csv_button = QPushButton("Save Prayer Times to CSV")
-        save_csv_button.setStyleSheet(UITheme.primary_button_style())
-        save_csv_button.clicked.connect(update_callbacks["save_csv"])
-        settings_layout.addWidget(save_csv_button)
-
-        # Add test alert buttons
-        test_alert_layout = QHBoxLayout()
         
+        settings_layout.addWidget(prayer_data_group)
+        
+        # ===== SECTION 4: Test Alerts =====
+        test_group = QFrame()
+        test_group.setObjectName("settingsSection")
+        test_group.setStyleSheet(f"""
+            QFrame#settingsSection {{
+                background-color: {UITheme.LIGHT_BG};
+                border-radius: {UITheme.BORDER_RADIUS_LARGE}px;
+                padding: 10px;
+            }}
+        """)
+        test_layout = QVBoxLayout(test_group)
+        
+        # Section title
+        test_title = QLabel("Test Alerts")
+        test_title.setFont(FontManager.get_main_font(UITheme.FONT_MEDIUM, QFont.Weight.Bold))
+        test_title.setStyleSheet(f"color: {UITheme.TEXT_PRIMARY}; margin-bottom: 10px;")
+        test_layout.addWidget(test_title)
+        
+       # Test alert buttons
+        test_alert_layout = QHBoxLayout()
+
         test_reminder_button = QPushButton("Test Reminder Alert")
         test_reminder_button.setStyleSheet(UITheme.primary_button_style())
         test_reminder_button.clicked.connect(lambda: update_callbacks["test_alert"]("reminder"))
         test_alert_layout.addWidget(test_reminder_button)
-        
+
         test_azan_button = QPushButton("Test Azan Alert")
         test_azan_button.setStyleSheet(UITheme.primary_button_style())
         test_azan_button.clicked.connect(lambda: update_callbacks["test_alert"]("azan"))
         test_alert_layout.addWidget(test_azan_button)
-        
+
         test_iqamah_button = QPushButton("Test Iqamah Alert")
         test_iqamah_button.setStyleSheet(UITheme.primary_button_style())
         test_iqamah_button.clicked.connect(lambda: update_callbacks["test_alert"]("iqamah"))
         test_alert_layout.addWidget(test_iqamah_button)
-        
-        settings_layout.addLayout(test_alert_layout)
 
-        settings_dialog.setLayout(settings_layout)
+        # Add prayer time test button
+        test_prayer_time_button = QPushButton("Test Prayer Time Alert")
+        test_prayer_time_button.setStyleSheet(UITheme.primary_button_style())
+        test_prayer_time_button.clicked.connect(lambda: update_callbacks["test_alert"]("prayer_time"))
+        test_alert_layout.addWidget(test_prayer_time_button)
+
+        test_layout.addLayout(test_alert_layout)
+        
+        settings_layout.addWidget(test_group)
+        
+        # Add a spacer to push everything up
+        settings_layout.addStretch(1)
+        
+        # Set the container as the scroll area widget
+        scroll_area.setWidget(settings_container)
+        main_layout.addWidget(scroll_area, 1)  # Give the scroll area most of the space
+        
+        # ===== Bottom buttons =====
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(10)
+        
+        # Add a spacer to push buttons to the right
+        buttons_layout.addStretch(1)
+        
+        # Cancel button
+        cancel_button = QPushButton("Cancel")
+        cancel_button.setStyleSheet(UITheme.danger_button_style())
+        cancel_button.clicked.connect(settings_dialog.close)
+        buttons_layout.addWidget(cancel_button)
+        
+        # Save button
+        save_button = QPushButton("Save Settings")
+        save_button.setStyleSheet(UITheme.success_button_style())
+        save_button.clicked.connect(lambda: update_callbacks["save_settings"](mosque_input.text(), flash_message_input.text()))
+        buttons_layout.addWidget(save_button)
+        
+        main_layout.addLayout(buttons_layout)
+        
         return settings_dialog, preview_table, mosque_input, flash_message_input
+
     
     @staticmethod
     def create_flash_message_bar(flash_message):
