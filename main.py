@@ -15,7 +15,7 @@ from PyQt6.QtGui import QFont, QColor, QPalette, QIcon, QFontDatabase, QPixmap, 
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, 
                             QWidget, QPushButton, QFileDialog, QLineEdit, QFrame,
                             QTableWidget, QTableWidgetItem, QHeaderView, QMessageBox, QTextEdit,
-                            QGridLayout, QSpacerItem, QSizePolicy, QScrollArea, QDialog, QGraphicsOpacityEffect)
+                            QGridLayout, QSpacerItem, QSizePolicy, QScrollArea, QDialog, QGraphicsOpacityEffect,QGraphicsDropShadowEffect)
 from PyQt6.QtMultimedia import QMediaPlayer, QAudioOutput
 
 
@@ -628,7 +628,6 @@ class IntegratedAlert:
         self.sound_thresholds = {
             "reminder": 5,  # Play sound when 5 seconds remaining for reminders
             "iqamah": 30,   # Play sound when 30 seconds remaining for iqamah
-            "prayer_time": 60  # Play sound when 60 seconds remaining for prayer time
         }
         
         # Track if end sound has been played
@@ -669,7 +668,6 @@ class IntegratedAlert:
         if alert_type == "prayer_time":
             # Special handling for prayer time alert
             bg_color = "rgba(0, 0, 0, 0.95)"  # Almost black background
-            if self.audio_manager: self.audio_manager.play_sound("notification")
             duration = 15 * 60  # 15 minutes
         elif alert_type == "azan":
             bg_color = UITheme.ALERT_AZAN
@@ -884,9 +882,7 @@ class IntegratedAlert:
                     elif self.alert_type == "reminder":
                         self.audio_manager.play_sound("reminder_end")
                         logger.info("Playing reminder end sound")
-                    elif self.alert_type == "prayer_time":
-                        self.audio_manager.play_sound("reminder_end")
-                        logger.info("Playing prayer time end sound")
+                    
     
     def hide_alert(self):
         """Hide the alert with fade-out animation"""
@@ -1024,8 +1020,8 @@ class AlertManager:
                                 self.show_alert(f"Solat {prayer.upper()} 5 minit lagi", "reminder")
                             return
 
-                        # At prayer time: azan alert (widen the window to 30 seconds)
-                        elif -30 <= diff_seconds <= 30:  # 30 seconds before to 30 seconds after
+                        # At prayer time: azan alert (widen the window to 1 seconds)
+                        elif -1 <= diff_seconds <= 1:  # 1 seconds before to 1 seconds after
                             alert_key = f"{prayer}_azan"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1035,7 +1031,7 @@ class AlertManager:
                             return
 
                         # 10 minutes after prayer time: iqamah alert (widen the window to 1 minute)
-                        elif -660 <= diff_seconds <= -540:  # 9-11 minutes after
+                        elif -210 <= diff_seconds <= -150:  # 2.5-3.5 minutes after
                             alert_key = f"{prayer}_iqamah"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
@@ -1045,13 +1041,13 @@ class AlertManager:
                             return
                             
                         # 20 minutes after prayer time: prayer time alert (widen the window to 1 minute)
-                        elif -1260 <= diff_seconds <= -1140:  # 19-21 minutes after
+                        elif -810 <= diff_seconds <= -750:  # 12.5-13.5 minutes after
                             alert_key = f"{prayer}_prayer_time"
                             if not self.triggered_alerts.get(alert_key):
                                 self.triggered_alerts[alert_key] = True
                                 self.alert_active = True
                                 self.current_alert = alert_key
-                                self.show_alert(f"PRAYER TIME - {prayer.upper()}", "prayer_time")
+                                self.show_alert(f"Sila matikan telifon bimbit ketika solat", "prayer_time")
                             return
 
                 except (ValueError, AttributeError) as e:
@@ -1185,8 +1181,16 @@ class UIBuilder:
         logo_label.setStyleSheet("""
             QLabel#logoLabel {
                 background-color: transparent;
+                filter: drop-shadow(8px 8px 10px gray);
             }
         """)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(5)
+        shadow.setYOffset(5)
+        shadow.setColor(QColor(0, 0, 0, 150))  # Semi-transparent black
+        logo_label.setGraphicsEffect(shadow)
+
         left_layout.addWidget(logo_label)
         
         # Mosque name and Hijri date on the right of the logo
@@ -1537,6 +1541,12 @@ class UIBuilder:
         # Add a spacer to push buttons to the right
         buttons_layout.addStretch(1)
         
+        # Add this to the create_settings_dialog method in UIBuilder class
+        refresh_button = QPushButton("Refresh UI")
+        refresh_button.setStyleSheet(UITheme.primary_button_style())
+        refresh_button.clicked.connect(update_callbacks["refresh_ui"])
+        settings_layout.addWidget(refresh_button)
+
         # Cancel button
         cancel_button = QPushButton("Cancel")
         cancel_button.setStyleSheet(UITheme.danger_button_style())
@@ -1638,6 +1648,12 @@ class UIBuilder:
                     background-color: #475569;
                 }}
             """)
+            shadow = QGraphicsDropShadowEffect()
+            shadow.setBlurRadius(15)
+            shadow.setXOffset(5)
+            shadow.setYOffset(5)
+            shadow.setColor(QColor(0, 0, 0, 150))  # Semi-transparent black
+            card.setGraphicsEffect(shadow)
             card_layout = QVBoxLayout(card)
             
             # Only Arabic prayer name (no Malay name)
@@ -2029,13 +2045,14 @@ class PrayerTimesUI(QMainWindow):
         update_callbacks = {
             "update_flash": self.update_flash_message,
             "browse_bg": self.browse_background_image,
-            "upload_logo": self.upload_logo,  # Add this line
+            "upload_logo": self.upload_logo,
             "upload_csv": self.upload_csv,
             "save_settings": self.save_settings,
             "save_csv": self.save_csv,
-            "test_alert": self.alert_manager.test_alert
+            "test_alert": self.alert_manager.test_alert,
+            "refresh_ui": self.refresh_ui  # Add this line
         }
-        
+            
         # Create settings dialog
         self.settings_dialog, self.preview_table, self.mosque_input, self.flash_message_input = UIBuilder.create_settings_dialog(
             self.config_manager,
@@ -2439,17 +2456,18 @@ class PrayerTimesUI(QMainWindow):
             
             # Replace the content area in the main layout
             main_layout = self.centralWidget().layout()
+            old_content_area = self.content_area
             for i in range(main_layout.count()):
-                if main_layout.itemAt(i).widget() == self.content_area:
-                    main_layout.replaceWidget(self.content_area, container)
+                if main_layout.itemAt(i).widget() == old_content_area:
+                    main_layout.replaceWidget(old_content_area, container)
                     break
-            
-            # Hide the old content area and show the new one
-            self.content_area.hide()
-            container.show()
-            
+
             # Update the content_area reference
             self.content_area = container
+
+            # Schedule the old content area for deletion
+            old_content_area.deleteLater()
+
             
             # Store references to the background label and pixmap
             self.bg_label = bg_label
@@ -2560,7 +2578,73 @@ class PrayerTimesUI(QMainWindow):
                 logger.error(f"Failed to save CSV: {str(e)}")
                 QMessageBox.critical(self.settings_dialog, "Error", f"Failed to save CSV: {str(e)}")
     
-    
+    def refresh_ui(self):   
+        """Refresh the UI by recreating the main container and layout."""
+        try:
+            # Store current settings
+            background_path = self.config_manager.get("background_image_path")
+            scaling_mode = self.config_manager.get("background_scaling_mode", "cover")
+            
+            # Create a new central widget
+            new_container = QWidget()
+            new_container.setObjectName("mainContainer")
+            new_container.setStyleSheet("""
+                QWidget#mainContainer {
+                    background-color: #000000;
+                }
+            """)
+            
+            # Recreate the main layout
+            main_layout = QVBoxLayout(new_container)
+            main_layout.setContentsMargins(0, 0, 0, 0)
+            main_layout.setSpacing(0)
+            
+            # Recreate all UI components
+            header_frame, self.mosque_label, self.logo_label, self.hijri_label, self.time_label, self.date_label = UIBuilder.create_header(
+                self.config_manager.get("mosque_name", "Mosque Name"),
+                self.open_settings
+            )
+            main_layout.addWidget(header_frame)
+            
+            # Load logo
+            self.load_logo()
+            
+            # Recreate flash message bar
+            flash_container, self.flash_message_label = UIBuilder.create_flash_message_bar(
+                self.config_manager.get("flash_message", "Welcome to the Mosque Prayer Times Display")
+            )
+            main_layout.addWidget(flash_container)
+            
+            # Setup marquee animation
+            self.marquee_manager = MarqueeManager(self.flash_message_label)
+            self.marquee_manager.setup_animation()
+            
+            # Create new content area
+            self.content_area = UIBuilder.create_content_area()
+            main_layout.addWidget(self.content_area, 1)
+            
+            # Create prayer cards
+            prayer_cards_container, self.prayer_labels, self.prayer_times_labels = UIBuilder.create_prayer_cards(self.prayer_names)
+            main_layout.addWidget(prayer_cards_container)
+            
+            # Set the new central widget
+            self.setCentralWidget(new_container)
+            
+            # Apply background if available
+            if background_path and os.path.exists(background_path):
+                self.set_background_image(background_path, scaling_mode)
+            
+            # Update the time display
+            self.update_time()
+            
+            # Show success message
+            QMessageBox.information(self.settings_dialog, "Success", "UI refreshed successfully.")
+            logger.info("UI refreshed successfully")
+            
+        except Exception as e:
+            logger.error(f"Error refreshing UI: {str(e)}", exc_info=True)
+            QMessageBox.critical(self.settings_dialog, "Error", f"Failed to refresh UI: {str(e)}")
+
     def test_prayer_alert(self, prayer_name):
         """Test alert for a specific prayer time"""
         today = datetime.datetime.now().strftime("%d/%m/%Y")
