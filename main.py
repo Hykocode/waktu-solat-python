@@ -643,9 +643,9 @@ class IntegratedAlert:
         """Format seconds into minutes and seconds display"""
         minutes, seconds = divmod(seconds, 60)
         if minutes > 0:
-            return f"{minutes} min {seconds} sec"
+            return f"{minutes} min {seconds} s"
         else:
-            return f"{seconds} seconds"
+            return f"{seconds} saat"
     
     def show_alert(self, message, duration=10, alert_type="reminder"):
         # Log alert creation
@@ -704,9 +704,37 @@ class IntegratedAlert:
             title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(title_label)
             
-            # Add prayer name
-            prayer_name = message.replace("PRAYER TIME - ", "")
-            prayer_label = QLabel(prayer_name)
+            # Add quiet and silent icons at the top in a horizontal layout
+            icons_layout = QHBoxLayout()
+            icons_layout.setSpacing(30)  # Space between icons
+            icons_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            
+            # Quiet icon
+            quiet_icon = QLabel()
+            quiet_icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "quiet.png")
+            if os.path.exists(quiet_icon_path):
+                quiet_pixmap = QPixmap(quiet_icon_path)
+                if not quiet_pixmap.isNull():
+                    quiet_pixmap = quiet_pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    quiet_icon.setPixmap(quiet_pixmap)
+                    quiet_icon.setToolTip("Please be quiet during prayer")
+                    icons_layout.addWidget(quiet_icon)
+            
+            # Silent icon
+            silent_icon = QLabel()
+            silent_icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "silent.png")
+            if os.path.exists(silent_icon_path):
+                silent_pixmap = QPixmap(silent_icon_path)
+                if not silent_pixmap.isNull():
+                    silent_pixmap = silent_pixmap.scaled(84, 84, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+                    silent_icon.setPixmap(silent_pixmap)
+                    silent_icon.setToolTip("Please silence your phone")
+                    icons_layout.addWidget(silent_icon)
+            
+            layout.addLayout(icons_layout)
+            
+            # Add prayer message
+            prayer_label = QLabel(message)
             prayer_label.setFont(FontManager.get_main_font(28, QFont.Weight.Bold))
             prayer_label.setStyleSheet("color: white; margin-bottom: 30px;")
             prayer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -769,11 +797,11 @@ class IntegratedAlert:
             # Set icon based on alert type
             icon_path = ""
             if alert_type == "azan":
-                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "azan_icon.png")
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "azan_icon.svg")
             elif alert_type == "iqamah":
-                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "iqamah_icon.png")
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "iqamah_icon.svg")
             else:
-                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "reminder_icon.png")
+                icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "icons", "reminder_icon.svg")
             
             # Try to load the icon
             if os.path.exists(icon_path):
@@ -848,6 +876,7 @@ class IntegratedAlert:
         
         # Log alert display
         logger.info(f"Alert shown: {message} ({alert_type}), duration: {duration} seconds")
+
     
     def update_clock(self):
         """Update the digital clock display"""
@@ -940,7 +969,7 @@ class AlertManager:
         self.integrated_alert = IntegratedAlert(parent_widget)
     
     # Modify the AlertManager.check_alerts method
-# Fix for the AlertManager.check_alerts method
+
     def check_alerts(self, current_datetime):
         """Check and display prayer time alerts."""
         prayer_times = self.data_manager.prayer_times
@@ -1037,7 +1066,7 @@ class AlertManager:
                                 self.triggered_alerts[alert_key] = True
                                 self.alert_active = True
                                 self.current_alert = alert_key
-                                self.show_alert("IQAMAH", "iqamah")
+                                self.show_alert("IQOMAH", "iqamah")
                             return
                             
                         # 20 minutes after prayer time: prayer time alert (widen the window to 1 minute)
@@ -1047,6 +1076,7 @@ class AlertManager:
                                 self.triggered_alerts[alert_key] = True
                                 self.alert_active = True
                                 self.current_alert = alert_key
+                                # Use the prayer name in the message for proper display
                                 self.show_alert(f"Sila matikan telifon bimbit ketika solat", "prayer_time")
                             return
 
@@ -1097,7 +1127,7 @@ class AlertManager:
         elif alert_type == "iqamah":
             self.show_alert("TEST IQAMAH ALERT", "iqamah")
         elif alert_type == "prayer_time":
-            self.show_alert("PRAYER TIME - TEST", "prayer_time")
+            self.show_alert("Sila matikan telifon bimbit ketika solat", "prayer_time")
         else:
             self.show_alert("TEST REMINDER ALERT", "reminder")
 
